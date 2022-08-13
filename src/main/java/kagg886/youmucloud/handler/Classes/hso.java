@@ -3,11 +3,11 @@ package kagg886.youmucloud.handler.Classes;
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
-import kagg886.youmucloud.handler.MsgHandle;
-import kagg886.youmucloud.util.PixivUtil;
 import kagg886.youmucloud.util.ScoreUtil;
-import kagg886.youmucloud.util.Utils;
+import kagg886.youmucloud.handler.MsgHandle;
 import kagg886.youmucloud.util.cache.JSONArrayStorage;
+import kagg886.youmucloud.util.PixivUtil;
+import kagg886.youmucloud.util.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Connection;
@@ -22,14 +22,10 @@ public class hso extends MsgHandle {
 
 	public static JSONArrayStorage imgs;
 	private static final String saucenaoApikey = "7c949b57a221cb9c8e8fd5fe9055952193f58dcf";
-
-	//private OrtSession session;
-
-
+	
 	public hso() {
 		try {
 			imgs = JSONArrayStorage.obtain("res/setu.json");
-			//this.session = OrtEnvironment.getEnvironment().createSession( Statics.data_dir + "/res/model.onnx");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -39,105 +35,43 @@ public class hso extends MsgHandle {
 	public void handle(final GroupMsgPack pack) throws Exception {
 		String text = pack.getMessage().getTexts();
 
-//		if (text.startsWith(".hso detect")) {
-//			ArrayList<String> img = Utils.getImage(pack);
-//			if (img.size() == 0) {
-//				this.sendMsg(pack, "请发送图片!");
-//				return;
-//			}
-//
-//			if (ScoreUtil.checkCoin(this,pack,5)) {
-//				return;
-//			}
-//
-//			BufferedImage outside = ImageIO.read(Jsoup.connect(img.get(0)).ignoreContentType(true).execute().bodyStream());
-//			HashMap<String, OnnxTensor> map = new HashMap();
-//			OnnxTensor t = OnnxTensor.createTensor(OrtEnvironment.getEnvironment(), ImageUtil.imageToMatrix(ImageUtil.scaleImg(outside, 256, 256)));
-//			map.put("inputs", t);
-//			OrtSession.Result Result = this.session.run(map);
-//			float[][] outputProbs = (float[][])Result.get(0).getValue();
-//			float[] probabilities = outputProbs[0];
-//			float maxVal = Float.NEGATIVE_INFINITY;
-//			String[] label = new String[]{"drawings", "hentai", "neutral", "porn", "sexy"};
-//
-//			int j;
-//			for(int i = 0; i < probabilities.length; ++i) {
-//				if (probabilities[i] > maxVal) {
-//					maxVal = probabilities[i];
-//				}
-//
-//				for(j = 0; j < probabilities.length - 1 - i; ++j) {
-//					if (probabilities[j] > probabilities[j + 1]) {
-//						float proTemp = probabilities[j];
-//						probabilities[j] = probabilities[j + 1];
-//						probabilities[j + 1] = proTemp;
-//						String labelTemp = label[j];
-//						label[j] = label[j + 1];
-//						label[j + 1] = labelTemp;
-//					}
-//				}
-//			}
-//
-//			List<SortItem> result = new ArrayList();
-//
-//			for(j = 0; j < 5; ++j) {
-//				SortItem si = new SortItem();
-//				si.qqs.add(label[j]);
-//				si.value = (int)(probabilities[j] * 100.0F);
-//				result.add(si);
-//			}
-//
-//			result.sort(UpSorter.INSTANCE);
-//			t.close();
-//			MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), new String[]{"涩图检测结果如下:"});
-//			Iterator var56 = result.iterator();
-//
-//			while(var56.hasNext()) {
-//				SortItem s = (SortItem)var56.next();
-//				col.putText("\n");
-//				col.putText(s.qqs.get(0));
-//				col.putText("的分数:");
-//				col.putText(String.valueOf(s.value));
-//			}
-//
-//			pack.getGroup().sendMsg(col);
-//		}
+		if (text.startsWith(".hso pixiv down ")) {
+			String[] var = text.split(" ");
+			if (var.length == 5) {
+				sendMsg(pack,"请输入pid!");
+				return;
+			}
 
-		if (text.startsWith(".hso pixiv down")) {
-            String[] var = text.split(" ");
-            if (var.length == 5) {
-                sendMsg(pack, "格式输入错误!正确的格式为:.hso pixiv down [pid]");
-                return;
-            }
+			if (ScoreUtil.checkCoin(this,pack,5)) {
+				return;
+			}
 
-            if (ScoreUtil.checkCoin(this, pack, 5)) {
-                return;
-            }
-
-            Connection conn = PixivUtil.getPixivConnection("https://www.pixiv.net/ajax/illust/" + var[3] + "/pages?lang=zh");
-            JSONObject source = new JSONObject(conn.execute().body());
-            if (source.optBoolean("error")) {
-                sendMsg(pack, source.optString("message"));
-                return;
-            }
-            JSONArray imgList = source.optJSONArray("body");
-            Utils.service.execute(() -> {
-                MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), "下载链接如下:");
-                for (int i = 0; i < imgList.length(); i++) {
-                    col.putText("\n");
-                    try {
-                        col.putText(PixivUtil.PUrldownload(var[3] + "_original_" + (i + 1), imgList.optJSONObject(i).optJSONObject("urls").optString("original")));
-                    } catch (Exception e) {
-                        col.putText(imgList.optJSONObject(i).optJSONObject("urls").optString("original") + "下载失败");
-                    }
+			Connection conn = PixivUtil.getPixivConnection("https://www.pixiv.net/ajax/illust/" + var[3] +"/pages?lang=zh");
+			JSONObject source = new JSONObject(conn.execute().body());
+			JSONArray imgList = source.optJSONArray("body");
+			Utils.service.execute(() -> {
+				MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(),"下载链接如下:");
+				for (int i = 0; i < imgList.length(); i++) {
+					col.putText("\n");
+					try {
+						col.putText(PixivUtil.PUrldownload(var[3] + "_original_" + (i+1),imgList.optJSONObject(i).optJSONObject("urls").optString("original")));
+					} catch (Exception e) {
+						col.putText(imgList.optJSONObject(i).optJSONObject("urls").optString("original") + "下载失败");
+					}
 				}
 				pack.getGroup().sendMsg(col);
 			});
 		}
 
 		if (text.startsWith(".hso saucenao")) {
+			if (getParam(pack,"platform","").startsWith("QRSpeed") && getParam(pack,"ver",0) < 20220325) {
+				sendMsg(pack,"很遗憾\n当前主程序暂时无法支持该功能,请升级插件至2.1之后版本!");
+				return;
+			}
+
+
 			if (!pack.getMessage().containMsgType(MsgCollection.MsgType.img)) {
-                sendMsg(pack, "无法识别到图片!请发送带图消息");
+				sendMsg(pack,"请发送图文消息!");
 				return;
 			}
 
@@ -182,7 +116,7 @@ public class hso extends MsgHandle {
 		if (text.startsWith(".hso pixiv sfp")) {
 			String[] var = text.split(" ");
 			if (var.length == 3) {
-                sendMsg(pack, "参数识别失败!正确的格式为:.hso pixiv sfp [pid]");
+				sendMsg(pack,"请输入pid!");
 				return;
 			}
 
@@ -223,13 +157,12 @@ public class hso extends MsgHandle {
 
 		if (text.startsWith(".hso pixiv sfk")) {
 			String[] var = text.split(" ");
-			if (var.length <= 3) {
-                pack.getGroup().sendMsg(MsgSpawner.newAtToast(pack.getMember().getUin(), "参数识别失败!正确的格式为:.hso pixiv sfk [关键词]"));
+			if (var.length == 3) {
+				pack.getGroup().sendMsg(MsgSpawner.newAtToast(pack.getMember().getUin(), "请输入关键词!"));
 				return;
 			}
 
-			String url = String.format("https://www.pixiv.net/touch/ajax/search/illusts?include_meta=1&s_mode=s_tag&type=all&lang=zh&word=" + var[3]);
-
+			String url = String.format("https://www.pixiv.net/ajax/search/artworks/%s?word=%s&order=date_d&mode=r18&p=1&s_mode=s_tag&type=all&lang=zh_tw", var[3], var[3]);
 			Connection.Response response;
 			try {
 				response = PixivUtil.getPixivConnection(url).execute();
@@ -243,29 +176,7 @@ public class hso extends MsgHandle {
 				return;
 			}
 			MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), "");
-			JSONArray lists = source.optJSONObject("body").optJSONArray("illusts");
-
-			if (lists.length() == 0) {
-				response = PixivUtil.getPixivConnection("https://www.pixiv.net/touch/ajax/search/autocomplete?keyword=" + var[3] + "&lang=zh").execute();
-				source = new JSONObject(response.body());
-				lists = source.optJSONObject("body").optJSONArray("candidates");
-				col.putText("没能找到需要的图片");
-				if (lists.length() == 0) {
-					pack.getGroup().sendMsg(col);
-					return;
-				}
-				col.putText("，建议尝试以下关键词:");
-				for (int o = 0; o < lists.length(); o++) {
-					source = lists.optJSONObject(o);
-					col.putText(String.format("%s(%s)",source.optString("tag_name"),source.optString("tag_translation")));
-					if (o != lists.length() - 1) {
-						col.putText(",");
-					}
-				}
-				pack.getGroup().sendMsg(col);
-				return;
-			}
-
+			JSONArray lists = source.optJSONObject("body").optJSONObject("illustManga").optJSONArray("data");
 			int pix = Math.min(10, lists.length());
 			for (int o = 0; o < pix; o++) {
 				source = lists.optJSONObject(o);
@@ -274,9 +185,9 @@ public class hso extends MsgHandle {
 				col.putText("\ntitle:" + new String(source.optString("title").getBytes(), StandardCharsets.UTF_8));
 
 				try {
-					col.putImage(PixivUtil.PUrldownload(source.optString("id"),source.optString("url_s")));
+					col.putImage(PixivUtil.PUrldownload(source.optString("id"),source.optString("url")));
 				} catch (Exception e) {
-					col.putText("\nurl:" + source.optString("url_s"));
+					col.putText("\nurl:" + source.optString("url"));
 				}
 
 			}

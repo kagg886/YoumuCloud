@@ -32,7 +32,7 @@ public class Code24
 
         String[] ops = { "+", "-", "*", "/" };
         permOp(ops, 0, 3);
-		StringBuilder sb=new StringBuilder();
+		StringBuffer sb=new StringBuffer();
         for (String[] ta : cardList) {
 
             for (String[] to : opList) {

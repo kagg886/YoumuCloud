@@ -1,18 +1,18 @@
 package kagg886.youmucloud.handler.Classes;
 
-import kagg886.qinternet.Message.GroupMsgPack;
-import kagg886.qinternet.Message.MsgCollection;
-import kagg886.qinternet.Message.MsgSpawner;
-import kagg886.youmucloud.handler.MsgHandle;
 import kagg886.youmucloud.util.*;
-import kagg886.youmucloud.util.cache.JSONArrayStorage;
-import kagg886.youmucloud.util.cache.JSONObjectStorage;
-import kagg886.youmucloud.util.code24.Code24;
-import kagg886.youmucloud.util.gif.AnimatedGifEncoder;
 import kagg886.youmucloud.util.nd.BNDFile;
 import kagg886.youmucloud.util.nd.BNDPerson;
 import kagg886.youmucloud.util.nd.BNDShare;
 import kagg886.youmucloud.util.nd.LanzouHelper;
+import kagg886.youmucloud.util.cache.JSONArrayStorage;
+import kagg886.youmucloud.util.cache.JSONObjectStorage;
+import kagg886.youmucloud.util.code24.Code24;
+import kagg886.qinternet.Message.GroupMsgPack;
+import kagg886.qinternet.Message.MsgCollection;
+import kagg886.qinternet.Message.MsgSpawner;
+import kagg886.youmucloud.util.gif.AnimatedGifEncoder;
+import kagg886.youmucloud.handler.MsgHandle;
 import kagg886.youmucloud.util.tank.GreyParams;
 import kagg886.youmucloud.util.tank.MirageTank;
 import org.json.JSONArray;
@@ -36,11 +36,7 @@ public class ToolKit extends MsgHandle {
     private String[] os;
     private JSONObjectStorage langheaders;
 
-    private MirageTank mirageTank = new MirageTank();
-
-    private String[] genshintypes = {"Role","Arm","Perm","FullRole","FullArm"};
-
-
+    private MirageTank mirageTank = new MirageTank();;
 
     public ToolKit() {
         try {
@@ -65,64 +61,6 @@ public class ToolKit extends MsgHandle {
             }
         }
 
-        if (text.startsWith(".tk lenovo")) {
-            String[] vars = text.split(" ");
-            if (vars.length != 3) {
-                sendMsg(pack, "参数识别失败!正确的格式为:.tk levovo [拼音首字母缩写]");
-                return;
-            }
-
-            JSONObject o =new JSONArray(Jsoup.connect("https://lab.magiconch.com/api/nbnhhsh/guess")
-                    .ignoreContentType(true)
-                    .data("text",vars[2])
-                    .method(Connection.Method.POST)
-                    .execute().body()).optJSONObject(0);
-
-            if (o == null || !o.has("trans")) {
-                sendMsg(pack,"找不到对应的关键词!");
-                return;
-            }
-            JSONArray ot = o.optJSONArray("trans");
-            int k = Math.min(ot.length(), 5);
-            StringBuilder b = new StringBuilder(vars[2]).append("的释义可能是...\n");
-            while (k > 0) {
-                int index = Utils.random.nextInt(ot.length());
-                b.append(ot.optString(index)).append(",");
-                ot.remove(index);
-                k--;
-            }
-            sendMsg(pack,b.substring(0,b.length() - 1));
-            //[{"name":"nsfw","trans":["not safe for work","not suitable for work","你是废物","包含色情、暴力等不宜在工作时间浏览的内容"]}]
-
-        }
-
-        if (text.startsWith(".tk genshin")) {
-            String[] vars = text.split(" ");
-            if (vars.length != 3) {
-                sendMsg(pack, "参数识别失败!正确的格式为:.tk genshin [抽卡类型,详情发送.menu，进入.tk链接查看]");
-                return;
-            }
-
-            for (String type : genshintypes) {
-                if (vars[2].equals(type)) {
-                    Connection c = Jsoup.connect("https://www.theresa3rd.cn:8080/api/" + type + "Pray/PrayTen?memberCode=" + qq);
-                    c.ignoreContentType(true);
-                    c.header("authorzation","d330dcba84c84bef");
-                    JSONObject o = new JSONObject(c.execute().body());
-                    if (o.optInt("code") != 0) {
-                        sendMsg(pack,o.optString("message"));
-                        return;
-                    }
-                    o = o.optJSONObject("data");
-                    MsgCollection col = MsgSpawner.newAtToast(qq,"当日API调用还剩:" + o.optInt("apiDailyCallSurplus") + "次");
-                    col.putImage(o.optString("imgHttpUrl"));
-                    pack.getGroup().sendMsg(col);
-                    return;
-                }
-            }
-            sendMsg(pack,"抽卡类型错误!请检查:\n1.是否多加空格\n2.是否大写部分字母");
-        }
-
         if (text.startsWith(".tk tank")) {
             ArrayList<String> img = Utils.getImage(pack);
             if (img.size() != 2) {
@@ -130,46 +68,36 @@ public class ToolKit extends MsgHandle {
                 return;
             }
 
-            if (ScoreUtil.checkCoin(this,pack,3)) {
-                return;
-            }
-
             BufferedImage outside = ImageIO.read(Jsoup.connect(img.get(0)).ignoreContentType(true).execute().bodyStream());
-            outside = ImageUtil.compress(outside);
-
-            BufferedImage inside = ImageIO.read(Jsoup.connect(img.get(1)).ignoreContentType(true).execute().bodyStream());
-            inside = ImageUtil.compress(inside);
-
-            inside = ImageUtil.scaleImg(inside,outside.getWidth(), outside.getHeight());
+            //防止图片大小不一致出现bug
+            BufferedImage inside = new BufferedImage(outside.getWidth(),outside.getHeight(),BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = inside.createGraphics();
+            g2d.drawImage(ImageIO.read(Jsoup.connect(img.get(1)).ignoreContentType(true).execute().bodyStream()),0,0,inside.getWidth(),inside.getHeight(), null);
 
             BufferedImage result = mirageTank.outputGrey(outside, inside, GreyParams.getDefault());
-            result = ImageUtil.compress(result);
-
             MsgCollection c = MsgSpawner.newAtToast(pack.getMember().getUin(),"生成完毕!");
             c.putImage(ImageUtil.ImageToLink(result,"tank"));
             pack.getGroup().sendMsg(c);
         }
 
-        if (text.startsWith(".tk baidudecode")) {
+        if (text.startsWith(".tk baidudecode ")) {
             String[] vars = text.split(" ");
             if (vars.length < 4) {
-                sendMsg(pack, "参数识别失败!正确的格式应为.tk baidudecode [度盘分享链接] [提取码]");
+                sendMsg(pack, "正确的格式应改为.tk baidudecode [度盘分享链接] [提取码]");
                 return;
             }
-
-            if (ScoreUtil.checkCoin(this, pack, 5)) {
-                return;
-            }
-
             String shareCode = vars[2];
             String pwd = vars[3];
             if (shareCode.contains("pan.baidu.com/s/") && shareCode.startsWith("http")) {
                 vars = shareCode.split("/");
                 shareCode = vars[vars.length - 1].split("\\?")[0];
+                if (ScoreUtil.checkCoin(this, pack, 10)) {
+                    return;
+                }
                 final BNDShare shareInfo = new BNDShare(shareCode, vCode_link -> {
                     MsgCollection c = MsgSpawner.newAtToast(qq, "请在十五秒内发送如图所示的验证码,取消验证请发送-1");
                     c.putImage(vCode_link);
-                    pack.getGroup().sendMsg(c);
+                    sendMsg(pack, c);
                     String verifyCode = WaitService.wait(qq + "_bdnVerify", 15);
                     if (verifyCode.equals("-1")) {
                         //传null取消验证
@@ -188,7 +116,7 @@ public class ToolKit extends MsgHandle {
                         shareInfo.verify(pwd);
                         BNDPerson p = shareInfo.getSharePerson();
 
-                        StringBuilder c = new StringBuilder();
+                        StringBuffer c = new StringBuffer();
                         printBNDFile(shareInfo.getShareInfo(),c);
 
                         Mail.sendMessage(qq + "@qq.com", "百度网盘解析结果By kagg886",
@@ -205,10 +133,10 @@ public class ToolKit extends MsgHandle {
             }
         }
 
-        if (text.startsWith(".tk lanzoudecode")) {
+        if (text.startsWith(".tk lanzoudecode ")) {
             String[] vars = text.split(" ");
             if (vars.length == 2) {
-                sendMsg(pack, "参数识别失败!正确的格式为:.tk lanzoudecode [蓝奏云链接]");
+                sendMsg(pack, "请输入链接!");
                 return;
             }
             LanzouHelper.Lanzou res;
@@ -239,7 +167,7 @@ public class ToolKit extends MsgHandle {
             int r = Utils.random.nextInt();
             ArrayList<String> links = Utils.getImage(pack);
             if (links.size() < 2) {
-                sendMsg(pack, "请发送含有两张以上图片的消息!");
+                sendMsg(pack, "请发送两张以上图片!");
                 return;
             }
 
@@ -284,7 +212,7 @@ public class ToolKit extends MsgHandle {
         if (text.startsWith(".tk jsformat")) {
             String[] vars = text.split(" ");
             if (vars.length == 2) {
-                sendMsg(pack, "格式识别错误!正确的格式为:.tk jsformat [json格式串]");
+                sendMsg(pack, "请输入json!");
                 return;
             }
             String result;
@@ -301,10 +229,10 @@ public class ToolKit extends MsgHandle {
             sendMsg(pack, result);
         }
 
-        if (text.startsWith(".tk pgrun")) {
+        if (text.startsWith(".tk pgrun ")) {
             String[] vars = text.split("\n");
             if (vars.length == 1) {
-                sendMsg(pack, "参数识别失败!正确的格式为:.tk pgrun [语言扩展][换行][程序代码]");
+                sendMsg(pack, "请在第一行末尾添加对应语言的文件扩展名!");
                 return;
             }
             if (ScoreUtil.checkCoin(this, pack, 2)) {
@@ -336,16 +264,16 @@ public class ToolKit extends MsgHandle {
         if (text.startsWith(".tk ans")) {
             String[] vars = text.split(" ");
             if (vars.length <= 2) {
-                sendMsg(pack, "参数识别失败!正确的格式应为:.tk ans [问题]");
+                sendMsg(pack, "参数不够!");
                 return;
             }
             sendMsg(pack, "对于问题:" + vars[2], "\n我的答案是:\n", answers.optString(Utils.random.nextInt(answers.length())));
         }
 
-        if (text.startsWith(".tk wf")) {
+        if (text.startsWith(".tk wf ")) {
             String[] vars = text.split(" ");
             if (vars.length <= 2) {
-                sendMsg(pack, "参数识别失败!正确的格式为:.tk wf [英文的问题/数学表达式...等等]");
+                sendMsg(pack, "参数不够!");
                 return;
             }
 
@@ -412,7 +340,7 @@ public class ToolKit extends MsgHandle {
         if (text.startsWith(".tk code24")) {
             String[] vars = text.split(" ");
             if (vars.length != 3) {
-                sendMsg(pack, "格式识别错误!正确的格式为:.tk code24 [a] [b] [c] [d]");
+                sendMsg(pack, "参数不够或过多!");
                 return;
             }
             String j = new Code24().setCards(vars[2]).calc();
@@ -420,7 +348,7 @@ public class ToolKit extends MsgHandle {
         }
     }
 
-    public static void printBNDFile(List<BNDFile> file,StringBuilder buffer) throws Exception {
+    public static void printBNDFile(List<BNDFile> file,StringBuffer buffer) throws Exception {
         for (BNDFile f : file) {
             if (f.isDirectory()) {
                 printBNDFile(f.listFiles(),buffer);

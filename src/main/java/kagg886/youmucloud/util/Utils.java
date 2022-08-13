@@ -12,12 +12,8 @@ import java.util.regex.Pattern;
 
 public class Utils {
 	public static ThreadPoolExecutor service = (ThreadPoolExecutor) Executors.newFixedThreadPool(500);
-
-
-    public static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+	public static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
 	public static Random random = new Random();
-
-	public static final long lowestVersion = 20220831;
 
     public static ArrayList<String> getImage(GroupMsgPack pack) {
 		ArrayList<String> links = new ArrayList<>();

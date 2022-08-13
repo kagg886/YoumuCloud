@@ -3,15 +3,18 @@ package kagg886.youmucloud.handler.Classes;
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
+import kagg886.youmucloud.util.ScoreUtil;
 import kagg886.youmucloud.handler.MsgHandle;
 import kagg886.youmucloud.util.MusicFactory;
-import kagg886.youmucloud.util.ScoreUtil;
 import kagg886.youmucloud.util.Utils;
 import kagg886.youmucloud.util.WaitService;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +34,108 @@ public class Music extends MsgHandle {
 			}
 		}
 
+		if (text.startsWith(".ms qq ")) {
+			String[] vars = text.split(" ");
+			if (vars.length == 2) {
+				sendMsg(pack, "请输入要搜索的歌曲名称!");
+				return;
+			}
+
+			JSONArray list = getQQMusicJSONData(text.replace(".ms qq ",""),0);
+
+			if (ScoreUtil.checkCoin(this,pack,3)) {
+				return;
+			}
+			ArrayList<MusicInfo<String>> infos = new ArrayList<>();
+			JSONObject data;
+			MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(),text.replace(".ms qq ",""),"的搜索结果如下:\n");
+			for (int i = 0; i < list.length(); i++) {
+				data = list.optJSONObject(i);
+				String songName = data.optString("songname");
+				String author = data.optJSONArray("singer").optJSONObject(0).optString("name");
+				String id = data.optString("songmid");
+				infos.add(new MusicInfo<>(songName,author,id));
+				col.putText(i + ":" + songName);
+				col.putText("---" + author);
+				col.putText("\n");
+			}
+			col.putText("发送序号面前的数字以进行点歌，您只有一次机会\n发送-1停止点歌");
+			sendMsg(pack,col);
+
+			Utils.service.execute(() -> {
+				int choice = -2;
+				try {
+					String a = WaitService.wait(qq + "_songs");
+					if (a == null) {
+						throw new RuntimeException("null");
+					}
+					choice = Integer.parseInt(a);
+				} catch (Exception e) {
+					sendMsg(pack, "发生错误!自动停止点歌!");
+					return;
+				}
+
+				switch (choice) {
+					case -2:
+						sendMsg(pack, "超时停止点歌~");
+						return;
+					case -1:
+						sendMsg(pack, "点歌已手动停止。");
+						return;
+				}
+				MusicInfo<String> target = infos.get(choice);
+				Document document;
+				try {
+					Connection.Response conn = Jsoup.connect("https://www.bejson.com/Bejson/Api/HttpRequest/curl_request").ignoreContentType(true).
+							userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36").
+							data("protocol", "https://").
+							data("url", "i.y.qq.com/v8/playsong.html?ADTAG=ryqq.songDetail&songmid=" + target.id).
+							data("type", "GET").
+							data("code", "utf-8").
+							data("checked[httpOptionBox]", "false").
+							data("checked[httpHeaderBox]", "true").
+							data("checked[httpCookieBox]", "false").
+							data("checked[httpProxyBox]", "false").
+							data("paramSwitch[]", "false").
+							data("paramSwitch[]", "true").
+							data("paramSwitch[]", "false").
+							data("param2","").
+							data("param3","").
+							data("contentType", "application/x-www-form-urlencoded;charset=utf-8")
+							.method(Connection.Method.POST).execute();
+					document = Jsoup.parse(new JSONObject(conn.body()).optJSONObject("data").optString("result"));
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				String picUrl = document.getElementsByAttributeValue("class","bg__img").get(0).attr("src"); //插图
+
+				for (Element s : document.getElementsByTag("script")) {
+					if (s.html().startsWith("window.__ssrFirstPageData__ =")) {
+						JSONObject songInfo;
+						try {
+							songInfo = new JSONObject(s.html().replace("window.__ssrFirstPageData__ =", ""));
+						} catch (JSONException e) {
+							throw new RuntimeException(e);
+						}
+						songInfo = songInfo.optJSONArray("songList").optJSONObject(0);
+						String link = Utils.unicodeToString(songInfo.optString("url")); //播放链接
+
+						if (getParam(pack,"platform","").equals("QRSpeed_Vip")) {
+							MsgCollection c = new MsgCollection();
+							c.putJson(MusicFactory.spawnMusic("QQ音乐",target.songName,target.author,picUrl,link,"https://i.y.qq.com/v8/playsong.html?ADTAG=ryqq.songDetail&songmid=" + target.id + "&songid=0&songtype=0#webchat_redirect"));
+							pack.getGroup().sendMsg(c);
+						} else {
+							sendMsg(pack,
+									"歌名:",target.songName,"\n",
+									"作者:",target.author,"\n",
+									"播放链接:",link
+							);
+						}
+					}
+				}
+			});
+		}
+
 		if (text.startsWith(".ms nes ")) {
 			String[] vars = text.split(" ");
 			if (vars.length == 2) {
@@ -43,68 +148,52 @@ public class Music extends MsgHandle {
 			}
 
 			//获取数据
-            String call = Jsoup.connect("https://www.ckyhahaha.info/search?keywords=" + text.replace(".ms nes ", ""))
-                    .ignoreContentType(true)
-                    .execute().body();
-            JSONArray musicList = new JSONObject(call).optJSONObject("result").optJSONArray("songs");
+			String call = Jsoup.connect("http://music.eleuu.com/search?keywords=" + text.replace(".ms nes ",""))
+					.ignoreContentType(true)
+					.execute().body();
+			JSONArray musicList = new JSONObject(call).optJSONObject("result").optJSONArray("songs");
 
-            //准备基本参数
-            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), text.replace(".ms nes ", ""), "的搜索结果如下:\n");
-            JSONObject details;
-            ArrayList<MusicInfo<Long>> infos = new ArrayList<>();
-            //循环
-            int i = 0;
-            int skip = 0;
-            while (i < Math.min(musicList.length(), 9 + skip)) {
-                details = musicList.optJSONObject(i);
+			//准备基本参数
+			MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(),text.replace(".ms nes ",""),"的搜索结果如下:\n");
+			JSONObject details;
+			ArrayList<MusicInfo<Long>> infos = new ArrayList<>();
+			//循环
+			for (int i = 0; i < musicList.length(); i++) {
+				details = musicList.optJSONObject(i);
 
-                String art = details.optJSONArray("artists").optJSONObject(0).optString("name");
-                //记录歌曲id
-                infos.add(new MusicInfo<>(details.optString("name"), art, details.optLong("id")));
+				String art = details.optJSONArray("artists").optJSONObject(0).optString("name");
+				//记录歌曲id
+				infos.add(new MusicInfo<>(details.optString("name"), art, details.optLong("id")));
 
-                //加入消息集合
-                col.putText(i + ":" + details.optString("name"));
-                col.putText("---");
-                col.putText(art);
-                col.putText("\n");
+				//加入消息集合
+				col.putText(i + ":" + details.optString("name"));
+				col.putText("---");
+				col.putText(art);
+				col.putText("\n");
+			}
+			col.putText("发送序号面前的数字以进行点歌，您只有一次机会\n发送-1停止点歌");
+			sendMsg(pack,col);
 
-                //滤过失效的歌曲
-                // TODO: 2022/9/10  待测试
-                if (Jsoup.connect("http://music.163.com/song/media/outer/url?id=" + details.optLong("id") + ".mp3").ignoreContentType(true).execute().statusCode() == 200) {
-                    i++;
-                    continue;
-                }
-                skip++;
-            }
-            col.putText("请在十秒内发送序号面前的数字以进行点歌，您只有一次机会\n发送-1停止点歌");
-            if (skip != 0) {
-                col.putText("\n本次点歌排除了" + i + "首失效歌曲");
-            }
-            sendMsg(pack, col);
-
-            Utils.service.execute(() -> {
-                int choice;
-                try {
-                    String a = WaitService.wait(qq + "_songs");
-                    if (a == null) {
-                        throw new RuntimeException("-2");
-                    }
-                    choice = Integer.parseInt(a);
-					if (choice == -1) {
-						throw new RuntimeException("-1");
+			Utils.service.execute(() -> {
+				int choice = -2;
+				try {
+					String a = WaitService.wait(qq + "_songs");
+					if (a == null) {
+						throw new RuntimeException("null");
 					}
+					choice = Integer.parseInt(a);
 				} catch (Exception e) {
-					switch (e.getMessage()) {
-						case "-2":
-							sendMsg(pack,"超时停止点歌~");
-							return;
-						case "-1":
-							sendMsg(pack,"点歌已手动停止。");
-							return;
-						default:
-							sendMsg(pack,"点歌遇到错误,点歌失败!");
-							return;
-					}
+					sendMsg(pack,"发生错误!自动停止点歌!");
+					return;
+				}
+
+				switch (choice) {
+					case -2:
+						sendMsg(pack,"超时停止点歌~");
+						return;
+					case -1:
+						sendMsg(pack,"点歌已手动停止。");
+						return;
 				}
 
 				MusicInfo<Long> target = infos.get(choice);
@@ -119,7 +208,7 @@ public class Music extends MsgHandle {
 				String imgLink = s.getElementsByAttributeValue("property","og:image").get(0).attr("content");
 
 				String musicLink ="http://music.163.com/song/media/outer/url?id=" + target.id + ".mp3";
-				if (!getParam(pack,"platform","").equals("QRSpeed_unVip") && !getParam(pack,"platform","").startsWith("Secluded")) {
+				if (getParam(pack,"platform","").equals("QRSpeed_Vip")) {
 					MsgCollection c = new MsgCollection();
 					c.putJson(MusicFactory.spawnMusic("网易云音乐",target.songName,target.author,imgLink,musicLink,"https://music.163.com/song?id=" + target.id));
 					pack.getGroup().sendMsg(c);
@@ -132,6 +221,36 @@ public class Music extends MsgHandle {
 				}
 			});
 		}
+	}
+
+	public static JSONArray getQQMusicJSONData(String key,int repeat) throws Exception {
+		if (repeat == 4) {
+			throw new Exception("服务器拒绝请求!");
+		}
+		Connection.Response conn = Jsoup.connect("https://www.bejson.com/Bejson/Api/HttpRequest/curl_request").ignoreContentType(true).
+				userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36").
+				data("protocol", "https://").
+				data("url", "c.y.qq.com/soso/fcgi-bin/client_search_cp?aggr=1&cr=1&flag_qc=0&p=1&n=10&format=json&w=" + key).
+				data("type", "GET").
+				data("code", "utf-8").
+				data("checked[httpOptionBox]", "false").
+				data("checked[httpHeaderBox]", "false").
+				data("checked[httpCookieBox]", "false").
+				data("checked[httpProxyBox]", "false").
+				data("paramSwitch[]", "true").
+				data("paramSwitch[]", "false").
+				data("paramSwitch[]", "false").
+				data("param2","").
+				data("param3","false").
+				data("contentType", "application/x-www-form-urlencoded;charset=utf-8")
+				.method(Connection.Method.POST).execute();
+		JSONObject data = new JSONObject(conn.body());
+		data = data.optJSONObject("data");
+		if (data.optJSONObject("hearder").optInt("http_code") != 200) {
+			return getQQMusicJSONData(key,++repeat);
+		}
+		data = new JSONObject(data.optString("result"));
+		return data.optJSONObject("data").optJSONObject("song").optJSONArray("list");
 	}
 
 	static class MusicInfo<T> {

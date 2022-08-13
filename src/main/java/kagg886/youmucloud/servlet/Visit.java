@@ -6,7 +6,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 @WebServlet("/visit")
 public class Visit extends HttpServlet {
@@ -26,9 +26,6 @@ public class Visit extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String url = req.getParameter("url");
-        if (req.getParameter("urlencode") != null) {
-            url = Utils.unicodeToString(url);
-        }
         String method = req.getParameter("method");
 
         if (url == null) {

@@ -3,6 +3,7 @@ package kagg886.youmucloud.util.plaidgame;
 import kagg886.youmucloud.util.Utils;
 
 import java.awt.*;
+import java.util.Random;
 
 public class ColorMap {
     private final int[] answers = new int[2];

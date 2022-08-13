@@ -9,5 +9,8 @@
         <module name="youmucloud" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="test" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>

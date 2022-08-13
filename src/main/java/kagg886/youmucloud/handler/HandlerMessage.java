@@ -3,15 +3,15 @@ package kagg886.youmucloud.handler;
 import kagg886.qinternet.Interface.QQMsgListener;
 import kagg886.qinternet.Message.*;
 import kagg886.qinternet.QInternet;
-import kagg886.youmucloud.handler.Classes.*;
-import kagg886.youmucloud.handler.Classes.game.LiteGame;
-import kagg886.youmucloud.handler.Classes.game.ScoreStatis;
 import kagg886.youmucloud.handler.QI.YoumuUser;
+import kagg886.youmucloud.handler.Classes.*;
+import kagg886.youmucloud.handler.Classes.game.*;
 import kagg886.youmucloud.util.MsgIterator;
-import kagg886.youmucloud.util.Statics;
 import kagg886.youmucloud.util.Utils;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -20,7 +20,7 @@ public class HandlerMessage implements QQMsgListener {
     public static final HandlerMessage INSTANCE = new HandlerMessage();
     public static final LinkedList<MsgHandle> handles = new LinkedList<>();
 
-    private String[] fixChar = new String[]{"<", ">", "[", "]"};
+    public static final long lowestVersion = 20220220;
 
     static {
         //注册指令监听器
@@ -39,7 +39,7 @@ public class HandlerMessage implements QQMsgListener {
         handles.add(new RSSService());
         handles.add(new ScoreStatis());
         handles.add(new Spawn());
-        handles.add(new LiteGame());
+        handles.add(new PlaidGame());
     }
 
     @Override
@@ -66,13 +66,12 @@ public class HandlerMessage implements QQMsgListener {
             pack.getGroup().sendMsg(MsgSpawner.newAtToast(pack.getMember().getUin(), "服务器繁忙,请稍后再试"));
         }
 
-        if (((YoumuUser) QInternet.findBot(pack.getMember().getBotQQ())).getClient().getHeaders().optInt("ver", 0) < Utils.lowestVersion) {
-            pack.getGroup().sendMsg(MsgSpawner.newPlainText("抱歉，当前版本因为兼容性而暂停使用\n请下载最新版YoumuCloud,下载地址:\nhttp://" + Statics.ip + "/youmu/text?path=update"));
+        if (((YoumuUser) QInternet.findBot(pack.getMember().getBotQQ())).getClient().getHeaders().optInt("ver", 0) < lowestVersion) {
+            pack.getGroup().sendMsg(MsgSpawner.newPlainText("抱歉，当前版本因为兼容性而暂停使用\n请下载最新版YoumuCloud"));
             return;
         }
         boolean canFilter = true;
         boolean canReplacer = true;
-        boolean canAutoFixer = true;
         for (MsgHandle msgHandle : handles) {
 
             if (canFilter) { //指令过滤器，加一个bool保证只过滤一次
@@ -88,18 +87,23 @@ public class HandlerMessage implements QQMsgListener {
             }
 
             if (canReplacer) { //指令替换器
-                //replace:点歌 xxx   .ms nes xxx
+                //replace:排行榜   .xp rank
                 JSONObject source = msgHandle.getParams(pack);
 
                 for (Iterator<String> it = source.keys(); it.hasNext();) {
-                    String rpl = it.next(); //每个key
+                    String rpl = it.next();
                     if (rpl.contains(":") && rpl.split(":").length == 2 && rpl.startsWith("replace:")) {
-                        String rp = rpl.split(":")[1];
-                        if (pack.getMessage().getTexts().contains(rp)) { //包含替换指令
+                        String rp;
+                        try {
+                            rp = new String(Base64.getDecoder().decode(rpl.split(":")[1]), StandardCharsets.UTF_8);
+                        } catch (Exception e) {
+                            msgHandle.sendClientLog(pack,"警告:运行群指令替换器时出错!\n请确保是否按照replace:[Base64]——[替换的指令]填写!");
+                            break;
+                        }
+                        if (pack.getMessage().getTexts().equals(rp)) {
                             //创建新包,然后搬移text
                             final MsgCollection c = new MsgCollection();
-                            c.putText(pack.getMessage().getTexts().replace(rp, source.optString(rpl)));
-                            msgHandle.sendClientLog(pack, String.format("DEBUG:\nrp:%s,rpl:%s,replaceText:%s", rp, rpl, pack.getMessage().getTexts().replace(rp, source.optString(rpl))));
+                            c.putText(source.optString(rpl));
                             pack.getMessage().iterator(new MsgIterator() {
                                 @Override
                                 public void onImage(String s) {
@@ -126,45 +130,18 @@ public class HandlerMessage implements QQMsgListener {
                                     c.putAt(l);
                                 }
                             });
-                            pack = new GroupMsgPack(pack.getGroup(), pack.getMember(), c);
+                            pack = new GroupMsgPack(pack.getGroup(),pack.getMember(),c);
                             break;
                         }
                     }
                 }
                 canReplacer = false;
             }
-            //指令纠正器
-            if (canAutoFixer) {
-                for (String fix : fixChar) {
-                    if (pack.getMessage().getTexts().contains(fix)) {
-                        final MsgCollection c = new MsgCollection();
-                        pack.getMessage().iterator(new MsgIterator() {
-
-                            @Override
-                            public void onText(String s) {
-                                c.putText(s.replace(fix, ""));
-                            }
-
-                            @Override
-                            public void onImage(String s) {
-                                c.putImage(s);
-                            }
-
-                            @Override
-                            public void onAt(long l) {
-                                c.putAt(l);
-                            }
-                        });
-                        pack = new GroupMsgPack(pack.getGroup(), pack.getMember(), c);
-                    }
-                }
-                canAutoFixer = false;
-            }
 
             try {
                 msgHandle.handle(pack);
             } catch (Throwable e) {
-                msgHandle.sendMsg(pack, "运行bot时出错!请复制以下错误信息然后加入官方群告知管理员!\n", Utils.PrintException(e));
+                msgHandle.sendMsg(pack,"运行bot时出错!请复制以下错误信息然后加入官方群告知管理员!\n",Utils.PrintException(e));
                 msgHandle.sendClientLog(pack, Utils.PrintException(e));
             }
         }

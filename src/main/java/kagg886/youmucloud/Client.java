@@ -3,10 +3,10 @@ package kagg886.youmucloud;
 import kagg886.qinternet.Content.QQBot;
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.QInternet;
-import kagg886.youmucloud.handler.HandlerMessage;
 import kagg886.youmucloud.handler.QI.Action;
 import kagg886.youmucloud.handler.QI.SessionGroupAPI;
 import kagg886.youmucloud.handler.QI.YoumuUser;
+import kagg886.youmucloud.handler.HandlerMessage;
 import kagg886.youmucloud.util.Statics;
 import kagg886.youmucloud.util.Utils;
 import kagg886.youmucloud.util.WaitService;
@@ -73,7 +73,7 @@ public class Client {
 		for (QQBot bot : QInternet.getList()) {
 			if (bot.getId() == name) {
 				QInternet.removeBot(bot);
-				//((YoumuUser) bot).getClient().session.close();
+				((YoumuUser) bot).getClient().session.close();
 				Utils.log("系统提示", name + "在连接时已经拥有实例，已清除该实例");
 			}
 		}
@@ -86,7 +86,7 @@ public class Client {
 		Action action = new Action("log");
 		action.put("msg",Utils.loadStringFromFile(Statics.data_dir + "broadcast.txt"));
 		sendMsg(action);
-		if (headers.optInt("ver",0) < Utils.lowestVersion) {
+		if (headers.optInt("ver",0) < HandlerMessage.lowestVersion) {
 			action.put("msg","\n[警告]:当前版本因为兼容性而暂停使用，请下载最新版YoumuCloud");
 			sendMsg(action);
 		}

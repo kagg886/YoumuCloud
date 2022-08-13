@@ -6,6 +6,7 @@ import kagg886.youmucloud.handler.QI.YoumuUser;
 import kagg886.youmucloud.util.Statics;
 import kagg886.youmucloud.util.WaitService;
 
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -33,12 +34,7 @@ public class OnlineStatus extends HttpServlet {
         for (Map.Entry<String, WaitService.CallBack> s : WaitService.queues.entrySet()) {
             builder.append("\n").append(s.getKey()).append("---").append(s.getValue().toString());
         }
-        builder.append("\n————内存信息————");
-        builder.append("\n空闲内存:" + (Runtime.getRuntime().freeMemory() / 1048576)).append("M");
-        builder.append("\n最大内存:" + (Runtime.getRuntime().totalMemory()/ 1048576)).append("M");
-        builder.append("\n封顶内存:" + (Runtime.getRuntime().maxMemory()/ 1048576)).append("M");
         response.getOutputStream().write(builder.toString().getBytes(StandardCharsets.UTF_8));
-        System.gc();
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {

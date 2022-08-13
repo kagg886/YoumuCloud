@@ -1,9 +1,9 @@
 package kagg886.youmucloud.servlet.spawn;
 
-import kagg886.youmucloud.util.ImageUtil;
 import kagg886.youmucloud.util.Statics;
-import kagg886.youmucloud.util.Utils;
 import kagg886.youmucloud.util.gif.AnimatedGifEncoder;
+import kagg886.youmucloud.util.ImageUtil;
+import kagg886.youmucloud.util.Utils;
 import org.jsoup.Jsoup;
 
 import javax.imageio.ImageIO;

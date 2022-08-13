@@ -5,10 +5,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
 import javax.imageio.ImageIO;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 
 public class PixivUtil {
 

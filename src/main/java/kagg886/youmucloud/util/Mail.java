@@ -24,7 +24,7 @@ public class Mail {
         message.setSubject(title);
         StringBuilder ss = new StringBuilder();
         for (String s : content) {
-            ss.append(s.replace("\n", "<br>"));
+            ss.append(s);
         }
         message.setContent(ss.toString(), "text/html;charset=UTF-8");
         Transport.send(message);

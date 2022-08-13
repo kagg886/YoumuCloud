@@ -3,16 +3,15 @@ package kagg886.youmucloud.handler.Classes;
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
-import kagg886.youmucloud.handler.MsgHandle;
-import kagg886.youmucloud.servlet.spawn.*;
-import kagg886.youmucloud.util.ImageUtil;
 import kagg886.youmucloud.util.ScoreUtil;
 import kagg886.youmucloud.util.Statics;
-import kagg886.youmucloud.util.Utils;
 import kagg886.youmucloud.util.bull.BullshitGenerator;
+import kagg886.youmucloud.handler.MsgHandle;
+import kagg886.youmucloud.servlet.spawn.*;
 import kagg886.youmucloud.util.sudo.SudokuChecker;
 import kagg886.youmucloud.util.sudo.SudokuFactory;
-import net.coobird.thumbnailator.Thumbnails;
+import kagg886.youmucloud.util.ImageUtil;
+import kagg886.youmucloud.util.Utils;
 import org.jsoup.Jsoup;
 
 import javax.imageio.ImageIO;
@@ -47,32 +46,21 @@ public class Spawn extends MsgHandle {
         if (text.startsWith(".spawn pat@")) {
             ArrayList<Long> targets = pack.getMessage().getAt();
             if (targets.size() == 0) {
-                sendMsg(pack, "请艾特一个人,不要复制");
+                sendMsg(pack,"请艾特一个人,不要复制");
                 return;
             }
-            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), "流口水~");
-            col.putImage(Pat.spawn("https://q1.qlogo.cn/g?b=qq&nk=" + targets.get(0) + "&s=640", 2));
-            pack.getGroup().sendMsg(col);
-        }
-
-        if (text.startsWith(".spawn garbage@")) {
-            ArrayList<Long> targets = pack.getMessage().getAt();
-            if (targets.size() == 0) {
-                sendMsg(pack, "请艾特一个人,不要复制");
-                return;
-            }
-            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), "垃姬探头~");
-            col.putImage(Garbage.spawn("https://q1.qlogo.cn/g?b=qq&nk=" + targets.get(0) + "&s=640"));
+            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(),"流口水~");
+            col.putImage(Pat.spawn("https://q1.qlogo.cn/g?b=qq&nk=" + targets.get(0) + "&s=640",2));
             pack.getGroup().sendMsg(col);
         }
 
         if (text.startsWith(".spawn pet@")) {
             ArrayList<Long> targets = pack.getMessage().getAt();
             if (targets.size() == 0) {
-                sendMsg(pack, "请艾特一个人,不要复制");
+                sendMsg(pack,"请艾特一个人,不要复制");
                 return;
             }
-            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), "摸摸~");
+            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(),"摸摸~");
             col.putImage(PetPet.spawn("https://q1.qlogo.cn/g?b=qq&nk=" + targets.get(0) + "&s=640"));
             pack.getGroup().sendMsg(col);
         }
@@ -138,7 +126,7 @@ public class Spawn extends MsgHandle {
 
                 BufferedImage image = ImageIO.read(Jsoup.connect("https://q1.qlogo.cn/g?b=qq&nk=" + targets.get(0) + "&s=640").ignoreContentType(true).execute().bodyStream());
                 image = ImageUtil.SquareToCircle(image);
-                image = Thumbnails.of(image).scale(1.0).outputQuality(1.0).rotate(Utils.random.nextInt(360)).asBufferedImage();
+                image = ImageUtil.rotate(image,Math.toRadians(Utils.random.nextInt(360)));
                 BufferedImage bkg = ImageIO.read(new File(Statics.data_dir + "/res/spawn/throw.png"));
                 Graphics g = bkg.getGraphics();
                 g.drawImage(image,19, 181, 137, 137, null);
