@@ -1,11 +1,53 @@
 package kagg886.youmucloud.util;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.awt.image.PixelGrabber;
 import java.io.File;
 import java.io.IOException;
 
 public class ImageUtil {
+
+    public static BufferedImage scaleImg(BufferedImage image, int width, int height) {
+        Image scaledImg = image.getScaledInstance(width, height, 2);
+        BufferedImage img = new BufferedImage(width, height, 1);
+        img.getGraphics().drawImage(scaledImg, 0, 0, (ImageObserver)null);
+        return img;
+    }
+
+    public static float[][][][] imageToMatrix(BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int[] pixels = new int[width * height];
+        PixelGrabber pg = new PixelGrabber(image, 0, 0, width, height, pixels, 0, width);
+
+        try {
+            pg.grabPixels();
+        } catch (InterruptedException var9) {
+            var9.printStackTrace();
+        }
+
+        float[][][][] ret = new float[1][pg.getHeight()][pg.getWidth()][3];
+        int row = 0;
+        int col = 0;
+
+        while(row * width + col < pixels.length) {
+            int pixel = row * width + col;
+            ret[0][row][col][2] = (float)(pixels[pixel] & 255) / 255.0F;
+            ret[0][row][col][1] = (float)(pixels[pixel] >> 8 & 255) / 255.0F;
+            ret[0][row][col][0] = (float)(pixels[pixel] >> 16 & 255) / 255.0F;
+            ++col;
+            if (col == width - 1) {
+                col = 0;
+                ++row;
+            }
+        }
+
+        return ret;
+    }
+
     public static String ImageToLink(BufferedImage image,String name,String suffix) throws IOException {
         StringBuilder builder = new StringBuilder();
         builder.append(Statics.data_dir + "imgcache/").append(name);
