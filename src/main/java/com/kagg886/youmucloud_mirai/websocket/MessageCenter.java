@@ -91,7 +91,8 @@ public class MessageCenter {
 
         c.stream().filter(Image.class::isInstance).forEach(t -> {
             Image i = (Image) t;
-            p.putImage(Image.queryUrl(i));
+            String imgurl = "http://gchat.qpic.cn/gchatpic_new/0/0-0-" + i.getImageId().split("\\.")[0].replace("{","").replace("}","").replace("-","") + "/0?term=2";
+            p.putImage(imgurl);
         });
         return p;
     }

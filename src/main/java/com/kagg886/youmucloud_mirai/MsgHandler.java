@@ -10,6 +10,8 @@ import kagg886.qinternet.Content.Person;
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.QInternet;
+import net.mamoe.mirai.contact.Friend;
+import net.mamoe.mirai.contact.Stranger;
 import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.ListenerHost;
 import net.mamoe.mirai.event.events.BotOfflineEvent;
