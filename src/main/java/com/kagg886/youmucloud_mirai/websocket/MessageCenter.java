@@ -8,6 +8,7 @@ import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.message.data.*;
 import net.mamoe.mirai.utils.ExternalResource;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
@@ -23,20 +24,8 @@ public class MessageCenter {
     public static MessageChain QITOMIRAIFORGROUP(MsgCollection c, Group g) {
         MessageChainBuilder chain = new MessageChainBuilder();
         c.iterator(new MsgIterator() {
-
             public void onXml(String arg0) {
-                chain.add(new ServiceMessage() {
-                    @Override
-                    public int getServiceId() {
-                        return 60;
-                    }
 
-                    @NotNull
-                    @Override
-                    public String getContent() {
-                        return arg0;
-                    }
-                });
             }
 
             public void onText(String arg0) {
@@ -45,22 +34,17 @@ public class MessageCenter {
             }
 
             public void onPtt(String arg0) {
-
             }
 
             public void onJson(String arg0) {
-                chain.add(new ServiceMessage() {
-                    @Override
-                    public int getServiceId() {
-                        return 1;
-                    }
-
-                    @NotNull
-                    @Override
-                    public String getContent() {
-                        return arg0;
-                    }
-                });
+                JSONObject share = new JSONObject(arg0).optJSONObject("meta").optJSONObject("music");
+                chain.add(new MusicShare(
+                        MusicKind.NeteaseCloudMusic,
+                        share.optString("title"),
+                        share.optString("desc"),
+                        share.optString("jumpUrl"),
+                        share.optString("preview"),
+                        share.optString("musicUrl")));
             }
 
             public void onImage(String arg0) {
@@ -95,6 +79,11 @@ public class MessageCenter {
             p.putImage(url);
             //p.putImage(Image.queryUrl(i));
         });
+
+        c.stream().filter(LightApp.class::isInstance).forEach(t -> {
+            LightApp a = (LightApp) t;
+            p.putJson(a.getContent());
+         });
         return p;
     }
 
