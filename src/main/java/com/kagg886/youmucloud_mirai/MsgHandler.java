@@ -21,6 +21,8 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.enums.ReadyState;
 import org.json.JSONObject;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -73,7 +75,7 @@ public class MsgHandler implements ListenerHost {
             object.put("platform", "Mirai_console");
         } catch (Exception ignored) {
         }
-        map.put("json", object.toString());
+        map.put("json", Base64.getEncoder().encodeToString(object.toString().getBytes(StandardCharsets.UTF_8)));
 
         Connection server = new Connection(URI.create(YoumuConfig.INSTANCE.getServerAddress() + id), id, map);
         server.setConnectionLostTimeout(0);
