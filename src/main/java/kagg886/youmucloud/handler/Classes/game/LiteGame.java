@@ -48,6 +48,7 @@ public class LiteGame extends MsgHandle {
         }
 
         if (text.equals(".gm ufo")) {
+
             if (ScoreStatis.exps.optInt(String.valueOf(qq)) < 30) {
                 sendMsg(pack,"至少拥有30exp才可使用此小游戏!");
                 return;

@@ -43,40 +43,53 @@ public class Music extends MsgHandle {
 			}
 
 			//获取数据
-			String call = Jsoup.connect("https://music.cyrilstudio.top/search?keywords=" + text.replace(".ms nes ",""))
-					.ignoreContentType(true)
-					.execute().body();
-			JSONArray musicList = new JSONObject(call).optJSONObject("result").optJSONArray("songs");
+            String call = Jsoup.connect("https://www.ckyhahaha.info/search?keywords=" + text.replace(".ms nes ", ""))
+                    .ignoreContentType(true)
+                    .execute().body();
+            JSONArray musicList = new JSONObject(call).optJSONObject("result").optJSONArray("songs");
 
-			//准备基本参数
-			MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(),text.replace(".ms nes ",""),"的搜索结果如下:\n");
-			JSONObject details;
-			ArrayList<MusicInfo<Long>> infos = new ArrayList<>();
-			//循环
-			for (int i = 0; i < musicList.length(); i++) {
-				details = musicList.optJSONObject(i);
+            //准备基本参数
+            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), text.replace(".ms nes ", ""), "的搜索结果如下:\n");
+            JSONObject details;
+            ArrayList<MusicInfo<Long>> infos = new ArrayList<>();
+            //循环
+            int i = 0;
+            int skip = 0;
+            while (i < Math.min(musicList.length(), 9 + skip)) {
+                details = musicList.optJSONObject(i);
 
-				String art = details.optJSONArray("artists").optJSONObject(0).optString("name");
-				//记录歌曲id
-				infos.add(new MusicInfo<>(details.optString("name"), art, details.optLong("id")));
+                String art = details.optJSONArray("artists").optJSONObject(0).optString("name");
+                //记录歌曲id
+                infos.add(new MusicInfo<>(details.optString("name"), art, details.optLong("id")));
 
-				//加入消息集合
-				col.putText(i + ":" + details.optString("name"));
-				col.putText("---");
-				col.putText(art);
-				col.putText("\n");
-			}
-			col.putText("发送序号面前的数字以进行点歌，您只有一次机会\n发送-1停止点歌");
-			sendMsg(pack,col);
+                //加入消息集合
+                col.putText(i + ":" + details.optString("name"));
+                col.putText("---");
+                col.putText(art);
+                col.putText("\n");
 
-			Utils.service.execute(() -> {
-				int choice;
-				try {
-					String a = WaitService.wait(qq + "_songs");
-					if (a == null) {
-						throw new RuntimeException("-2");
-					}
-					choice = Integer.parseInt(a);
+                //滤过失效的歌曲
+                // TODO: 2022/9/10  待测试
+                if (Jsoup.connect("http://music.163.com/song/media/outer/url?id=" + details.optLong("id") + ".mp3").ignoreContentType(true).execute().statusCode() == 200) {
+                    i++;
+                    continue;
+                }
+                skip++;
+            }
+            col.putText("请在十秒内发送序号面前的数字以进行点歌，您只有一次机会\n发送-1停止点歌");
+            if (skip != 0) {
+                col.putText("\n本次点歌排除了" + i + "首失效歌曲");
+            }
+            sendMsg(pack, col);
+
+            Utils.service.execute(() -> {
+                int choice;
+                try {
+                    String a = WaitService.wait(qq + "_songs");
+                    if (a == null) {
+                        throw new RuntimeException("-2");
+                    }
+                    choice = Integer.parseInt(a);
 					if (choice == -1) {
 						throw new RuntimeException("-1");
 					}

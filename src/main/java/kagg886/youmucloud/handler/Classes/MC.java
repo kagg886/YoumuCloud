@@ -26,7 +26,7 @@ public class MC extends MsgHandle {
 		if (text.startsWith(".mc historyname")) {
 			String[] var = text.split(" ");
 			if (var.length == 2) {
-				pack.getGroup().sendMsg(MsgSpawner.newAtToast(pack.getMember().getUin(),"请输入正版玩家用户名!"));
+				sendMsg(pack, "格式识别失败!正确的格式为:.mc historyname [用户id]");
 				return;
 			}
 
@@ -66,7 +66,7 @@ public class MC extends MsgHandle {
 			try {
 				type = var[2];
 				if (!type.equals("je") && !type.equals("be")) {
-					throw new Exception("请输入MC运行平台!(je/be)");
+                    throw new Exception("格式识别失败!正确的格式为:.mc motd [je/be] [ip] <端口>");
 				}
 			} catch (Exception e) {
 				sendMsg(pack, e.getMessage());
@@ -86,7 +86,7 @@ public class MC extends MsgHandle {
 					}
 				}
 			} catch (Exception e) {
-				sendMsg(pack,"请输入host!");
+                sendMsg(pack, "格式识别失败!正确的格式为:.mc motd [je/be] [ip] <端口>");
 				return;
 			}
 

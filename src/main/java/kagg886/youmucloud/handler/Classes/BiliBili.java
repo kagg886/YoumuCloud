@@ -220,7 +220,7 @@ public class BiliBili extends MsgHandle {
         if (text.startsWith(".bli articleimg")) {
             String[] var = text.split(" ");
             if (var.length == 2) {
-                pack.getGroup().sendMsg(MsgSpawner.newAtToast(pack.getMember().getUin(), "请输入cvid!"));
+                sendMsg(pack, "格式识别错误!正确的格式为:.bli articleimg [链接]");
                 return;
             }
 
@@ -250,7 +250,7 @@ public class BiliBili extends MsgHandle {
         if (text.startsWith(".bli videoformat")) {
             String[] var = text.split(" ");
             if (var.length == 2 || (var.length == 3 & (!var[2].equals("on") & !var[2].equals("off")))) {
-                pack.getGroup().sendMsg(MsgSpawner.newAtToast(pack.getMember().getUin(), "请输入开关状态!(on/off)"));
+                pack.getGroup().sendMsg(MsgSpawner.newAtToast(pack.getMember().getUin(), "格式输入错误!正确的格式为.bli videoformat [on/off]"));
                 return;
             }
             JSONObjectStorage config = JSONObjectStorage.obtain("data/" + pack.getGroup().getId() + "/Config.json");
@@ -270,7 +270,7 @@ public class BiliBili extends MsgHandle {
         if (text.startsWith(".ytb videoformat")) {
             String[] var = text.split(" ");
             if (var.length == 2 || (var.length == 3 & (!var[2].equals("on") & !var[2].equals("off")))) {
-                pack.getGroup().sendMsg(MsgSpawner.newAtToast(pack.getMember().getUin(), "请输入开关状态!(on/off)"));
+                pack.getGroup().sendMsg(MsgSpawner.newAtToast(pack.getMember().getUin(), "格式输入错误!正确的格式为.ytb videoformat [on/off]"));
                 return;
             }
             JSONObjectStorage config = JSONObjectStorage.obtain("data/" + pack.getGroup().getId() + "/Config.json");

@@ -112,7 +112,6 @@ public class MuseDash extends MsgHandle {
 					try {
 						allacc += acc.getJSONObject(i).optDouble("acc");
 					} catch (JSONException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}

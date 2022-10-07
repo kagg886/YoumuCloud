@@ -103,29 +103,33 @@ public class hso extends MsgHandle {
 //			pack.getGroup().sendMsg(col);
 //		}
 
-		if (text.startsWith(".hso pixiv down ")) {
-			String[] var = text.split(" ");
-			if (var.length == 5) {
-				sendMsg(pack,"请输入pid!");
-				return;
-			}
+		if (text.startsWith(".hso pixiv down")) {
+            String[] var = text.split(" ");
+            if (var.length == 5) {
+                sendMsg(pack, "格式输入错误!正确的格式为:.hso pixiv down [pid]");
+                return;
+            }
 
-			if (ScoreUtil.checkCoin(this,pack,5)) {
-				return;
-			}
+            if (ScoreUtil.checkCoin(this, pack, 5)) {
+                return;
+            }
 
-			Connection conn = PixivUtil.getPixivConnection("https://www.pixiv.net/ajax/illust/" + var[3] +"/pages?lang=zh");
-			JSONObject source = new JSONObject(conn.execute().body());
-			JSONArray imgList = source.optJSONArray("body");
-			Utils.service.execute(() -> {
-				MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(),"下载链接如下:");
-				for (int i = 0; i < imgList.length(); i++) {
-					col.putText("\n");
-					try {
-						col.putText(PixivUtil.PUrldownload(var[3] + "_original_" + (i+1),imgList.optJSONObject(i).optJSONObject("urls").optString("original")));
-					} catch (Exception e) {
-						col.putText(imgList.optJSONObject(i).optJSONObject("urls").optString("original") + "下载失败");
-					}
+            Connection conn = PixivUtil.getPixivConnection("https://www.pixiv.net/ajax/illust/" + var[3] + "/pages?lang=zh");
+            JSONObject source = new JSONObject(conn.execute().body());
+            if (source.optBoolean("error")) {
+                sendMsg(pack, source.optString("message"));
+                return;
+            }
+            JSONArray imgList = source.optJSONArray("body");
+            Utils.service.execute(() -> {
+                MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), "下载链接如下:");
+                for (int i = 0; i < imgList.length(); i++) {
+                    col.putText("\n");
+                    try {
+                        col.putText(PixivUtil.PUrldownload(var[3] + "_original_" + (i + 1), imgList.optJSONObject(i).optJSONObject("urls").optString("original")));
+                    } catch (Exception e) {
+                        col.putText(imgList.optJSONObject(i).optJSONObject("urls").optString("original") + "下载失败");
+                    }
 				}
 				pack.getGroup().sendMsg(col);
 			});
@@ -133,7 +137,7 @@ public class hso extends MsgHandle {
 
 		if (text.startsWith(".hso saucenao")) {
 			if (!pack.getMessage().containMsgType(MsgCollection.MsgType.img)) {
-				sendMsg(pack,"请发送图文消息!");
+                sendMsg(pack, "无法识别到图片!请发送带图消息");
 				return;
 			}
 
@@ -178,7 +182,7 @@ public class hso extends MsgHandle {
 		if (text.startsWith(".hso pixiv sfp")) {
 			String[] var = text.split(" ");
 			if (var.length == 3) {
-				sendMsg(pack,"请输入pid!");
+                sendMsg(pack, "参数识别失败!正确的格式为:.hso pixiv sfp [pid]");
 				return;
 			}
 
@@ -220,7 +224,7 @@ public class hso extends MsgHandle {
 		if (text.startsWith(".hso pixiv sfk")) {
 			String[] var = text.split(" ");
 			if (var.length <= 3) {
-				pack.getGroup().sendMsg(MsgSpawner.newAtToast(pack.getMember().getUin(), "请输入关键词!"));
+                pack.getGroup().sendMsg(MsgSpawner.newAtToast(pack.getMember().getUin(), "参数识别失败!正确的格式为:.hso pixiv sfk [关键词]"));
 				return;
 			}
 

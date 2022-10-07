@@ -68,7 +68,7 @@ public class ToolKit extends MsgHandle {
         if (text.startsWith(".tk lenovo")) {
             String[] vars = text.split(" ");
             if (vars.length != 3) {
-                sendMsg(pack,"请发送拼音缩写!");
+                sendMsg(pack, "参数识别失败!正确的格式为:.tk levovo [拼音首字母缩写]");
                 return;
             }
 
@@ -96,10 +96,10 @@ public class ToolKit extends MsgHandle {
 
         }
 
-        if (text.startsWith(".tk genshin ")) {
+        if (text.startsWith(".tk genshin")) {
             String[] vars = text.split(" ");
             if (vars.length != 3) {
-                sendMsg(pack,"请发送抽卡类型!");
+                sendMsg(pack, "参数识别失败!正确的格式为:.tk genshin [抽卡类型,详情发送.menu，进入.tk链接查看]");
                 return;
             }
 
@@ -150,14 +150,14 @@ public class ToolKit extends MsgHandle {
             pack.getGroup().sendMsg(c);
         }
 
-        if (text.startsWith(".tk baidudecode ")) {
+        if (text.startsWith(".tk baidudecode")) {
             String[] vars = text.split(" ");
             if (vars.length < 4) {
-                sendMsg(pack, "正确的格式应改为.tk baidudecode [度盘分享链接] [提取码]");
+                sendMsg(pack, "参数识别失败!正确的格式应为.tk baidudecode [度盘分享链接] [提取码]");
                 return;
             }
 
-            if (ScoreUtil.checkCoin(this,pack,5)) {
+            if (ScoreUtil.checkCoin(this, pack, 5)) {
                 return;
             }
 
@@ -169,7 +169,7 @@ public class ToolKit extends MsgHandle {
                 final BNDShare shareInfo = new BNDShare(shareCode, vCode_link -> {
                     MsgCollection c = MsgSpawner.newAtToast(qq, "请在十五秒内发送如图所示的验证码,取消验证请发送-1");
                     c.putImage(vCode_link);
-                    sendMsg(pack, c);
+                    pack.getGroup().sendMsg(c);
                     String verifyCode = WaitService.wait(qq + "_bdnVerify", 15);
                     if (verifyCode.equals("-1")) {
                         //传null取消验证
@@ -205,10 +205,10 @@ public class ToolKit extends MsgHandle {
             }
         }
 
-        if (text.startsWith(".tk lanzoudecode ")) {
+        if (text.startsWith(".tk lanzoudecode")) {
             String[] vars = text.split(" ");
             if (vars.length == 2) {
-                sendMsg(pack, "请输入链接!");
+                sendMsg(pack, "参数识别失败!正确的格式为:.tk lanzoudecode [蓝奏云链接]");
                 return;
             }
             LanzouHelper.Lanzou res;
@@ -239,7 +239,7 @@ public class ToolKit extends MsgHandle {
             int r = Utils.random.nextInt();
             ArrayList<String> links = Utils.getImage(pack);
             if (links.size() < 2) {
-                sendMsg(pack, "请发送两张以上图片!");
+                sendMsg(pack, "请发送含有两张以上图片的消息!");
                 return;
             }
 
@@ -284,7 +284,7 @@ public class ToolKit extends MsgHandle {
         if (text.startsWith(".tk jsformat")) {
             String[] vars = text.split(" ");
             if (vars.length == 2) {
-                sendMsg(pack, "请输入json!");
+                sendMsg(pack, "格式识别错误!正确的格式为:.tk jsformat [json格式串]");
                 return;
             }
             String result;
@@ -301,10 +301,10 @@ public class ToolKit extends MsgHandle {
             sendMsg(pack, result);
         }
 
-        if (text.startsWith(".tk pgrun ")) {
+        if (text.startsWith(".tk pgrun")) {
             String[] vars = text.split("\n");
             if (vars.length == 1) {
-                sendMsg(pack, "请在第一行末尾添加对应语言的文件扩展名!");
+                sendMsg(pack, "参数识别失败!正确的格式为:.tk pgrun [语言扩展][换行][程序代码]");
                 return;
             }
             if (ScoreUtil.checkCoin(this, pack, 2)) {
@@ -336,16 +336,16 @@ public class ToolKit extends MsgHandle {
         if (text.startsWith(".tk ans")) {
             String[] vars = text.split(" ");
             if (vars.length <= 2) {
-                sendMsg(pack, "参数不够!");
+                sendMsg(pack, "参数识别失败!正确的格式应为:.tk ans [问题]");
                 return;
             }
             sendMsg(pack, "对于问题:" + vars[2], "\n我的答案是:\n", answers.optString(Utils.random.nextInt(answers.length())));
         }
 
-        if (text.startsWith(".tk wf ")) {
+        if (text.startsWith(".tk wf")) {
             String[] vars = text.split(" ");
             if (vars.length <= 2) {
-                sendMsg(pack, "参数不够!");
+                sendMsg(pack, "参数识别失败!正确的格式为:.tk wf [英文的问题/数学表达式...等等]");
                 return;
             }
 
@@ -412,7 +412,7 @@ public class ToolKit extends MsgHandle {
         if (text.startsWith(".tk code24")) {
             String[] vars = text.split(" ");
             if (vars.length != 3) {
-                sendMsg(pack, "参数不够或过多!");
+                sendMsg(pack, "格式识别错误!正确的格式为:.tk code24 [a] [b] [c] [d]");
                 return;
             }
             String j = new Code24().setCards(vars[2]).calc();

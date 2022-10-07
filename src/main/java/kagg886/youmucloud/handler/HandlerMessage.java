@@ -19,6 +19,8 @@ public class HandlerMessage implements QQMsgListener {
     public static final HandlerMessage INSTANCE = new HandlerMessage();
     public static final LinkedList<MsgHandle> handles = new LinkedList<>();
 
+    private String[] fixChar = new String[]{"<", ">", "[", "]"};
+
     static {
         //注册指令监听器
         try {
@@ -69,6 +71,7 @@ public class HandlerMessage implements QQMsgListener {
         }
         boolean canFilter = true;
         boolean canReplacer = true;
+        boolean canAutoFixer = true;
         for (MsgHandle msgHandle : handles) {
 
             if (canFilter) { //指令过滤器，加一个bool保证只过滤一次
@@ -127,18 +130,45 @@ public class HandlerMessage implements QQMsgListener {
                                     c.putAt(l);
                                 }
                             });
-                            pack = new GroupMsgPack(pack.getGroup(),pack.getMember(),c);
+                            pack = new GroupMsgPack(pack.getGroup(), pack.getMember(), c);
                             break;
                         }
                     }
                 }
                 canReplacer = false;
             }
+            //自动纠正
+            if (canAutoFixer) {
+                for (String fix : fixChar) {
+                    if (pack.getMessage().getTexts().contains(fix)) {
+                        final MsgCollection c = new MsgCollection();
+                        pack.getMessage().iterator(new MsgIterator() {
+
+                            @Override
+                            public void onText(String s) {
+                                c.putText(s.replace(fix, ""));
+                            }
+
+                            @Override
+                            public void onImage(String s) {
+                                c.putImage(s);
+                            }
+
+                            @Override
+                            public void onAt(long l) {
+                                c.putAt(l);
+                            }
+                        });
+                        pack = new GroupMsgPack(pack.getGroup(), pack.getMember(), c);
+                    }
+                }
+                canAutoFixer = false;
+            }
 
             try {
                 msgHandle.handle(pack);
             } catch (Throwable e) {
-                msgHandle.sendMsg(pack,"运行bot时出错!请复制以下错误信息然后加入官方群告知管理员!\n",Utils.PrintException(e));
+                msgHandle.sendMsg(pack, "运行bot时出错!请复制以下错误信息然后加入官方群告知管理员!\n", Utils.PrintException(e));
                 msgHandle.sendClientLog(pack, Utils.PrintException(e));
             }
         }

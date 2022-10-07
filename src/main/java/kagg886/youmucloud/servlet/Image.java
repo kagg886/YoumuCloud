@@ -24,6 +24,5 @@ public class Image extends HttpServlet {
         }
         resp.setContentType("image/jpeg");
         resp.getOutputStream().write(Utils.loadByteFromFile(f.getAbsolutePath()));
-        f.delete();
     }
 }
