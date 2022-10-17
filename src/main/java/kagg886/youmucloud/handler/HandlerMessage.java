@@ -8,6 +8,7 @@ import kagg886.youmucloud.handler.Classes.game.LiteGame;
 import kagg886.youmucloud.handler.Classes.game.ScoreStatis;
 import kagg886.youmucloud.handler.QI.YoumuUser;
 import kagg886.youmucloud.util.MsgIterator;
+import kagg886.youmucloud.util.Statics;
 import kagg886.youmucloud.util.Utils;
 import org.json.JSONObject;
 
@@ -66,7 +67,7 @@ public class HandlerMessage implements QQMsgListener {
         }
 
         if (((YoumuUser) QInternet.findBot(pack.getMember().getBotQQ())).getClient().getHeaders().optInt("ver", 0) < Utils.lowestVersion) {
-            pack.getGroup().sendMsg(MsgSpawner.newPlainText("抱歉，当前版本因为兼容性而暂停使用\n请下载最新版YoumuCloud"));
+            pack.getGroup().sendMsg(MsgSpawner.newPlainText("抱歉，当前版本因为兼容性而暂停使用\n请下载最新版YoumuCloud,下载地址:\nhttp://" + Statics.ip + "/youmu/text?path=update"));
             return;
         }
         boolean canFilter = true;
@@ -87,23 +88,18 @@ public class HandlerMessage implements QQMsgListener {
             }
 
             if (canReplacer) { //指令替换器
-                //replace:排行榜   .xp rank
+                //replace:点歌 xxx   .ms nes xxx
                 JSONObject source = msgHandle.getParams(pack);
 
                 for (Iterator<String> it = source.keys(); it.hasNext();) {
-                    String rpl = it.next();
+                    String rpl = it.next(); //每个key
                     if (rpl.contains(":") && rpl.split(":").length == 2 && rpl.startsWith("replace:")) {
-                        String rp;
-                        try {
-                            rp = rpl.split(":")[1];
-                        } catch (Exception e) {
-                            msgHandle.sendClientLog(pack,"警告:运行群指令替换器时出错!\n请确保是否按照replace:[指令]——[替换的指令]填写!");
-                            break;
-                        }
-                        if (pack.getMessage().getTexts().equals(rp)) {
+                        String rp = rpl.split(":")[1];
+                        if (pack.getMessage().getTexts().contains(rp)) { //包含替换指令
                             //创建新包,然后搬移text
                             final MsgCollection c = new MsgCollection();
-                            c.putText(source.optString(rpl));
+                            c.putText(pack.getMessage().getTexts().replace(rp, source.optString(rpl)));
+                            msgHandle.sendClientLog(pack, String.format("DEBUG:\nrp:%s,rpl:%s,replaceText:%s", rp, rpl, pack.getMessage().getTexts().replace(rp, source.optString(rpl))));
                             pack.getMessage().iterator(new MsgIterator() {
                                 @Override
                                 public void onImage(String s) {
@@ -137,7 +133,7 @@ public class HandlerMessage implements QQMsgListener {
                 }
                 canReplacer = false;
             }
-            //自动纠正
+            //指令纠正器
             if (canAutoFixer) {
                 for (String fix : fixChar) {
                     if (pack.getMessage().getTexts().contains(fix)) {

@@ -47,21 +47,32 @@ public class Spawn extends MsgHandle {
         if (text.startsWith(".spawn pat@")) {
             ArrayList<Long> targets = pack.getMessage().getAt();
             if (targets.size() == 0) {
-                sendMsg(pack,"请艾特一个人,不要复制");
+                sendMsg(pack, "请艾特一个人,不要复制");
                 return;
             }
-            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(),"流口水~");
-            col.putImage(Pat.spawn("https://q1.qlogo.cn/g?b=qq&nk=" + targets.get(0) + "&s=640",2));
+            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), "流口水~");
+            col.putImage(Pat.spawn("https://q1.qlogo.cn/g?b=qq&nk=" + targets.get(0) + "&s=640", 2));
+            pack.getGroup().sendMsg(col);
+        }
+
+        if (text.startsWith(".spawn garbage@")) {
+            ArrayList<Long> targets = pack.getMessage().getAt();
+            if (targets.size() == 0) {
+                sendMsg(pack, "请艾特一个人,不要复制");
+                return;
+            }
+            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), "垃姬探头~");
+            col.putImage(Garbage.spawn("https://q1.qlogo.cn/g?b=qq&nk=" + targets.get(0) + "&s=640"));
             pack.getGroup().sendMsg(col);
         }
 
         if (text.startsWith(".spawn pet@")) {
             ArrayList<Long> targets = pack.getMessage().getAt();
             if (targets.size() == 0) {
-                sendMsg(pack,"请艾特一个人,不要复制");
+                sendMsg(pack, "请艾特一个人,不要复制");
                 return;
             }
-            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(),"摸摸~");
+            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), "摸摸~");
             col.putImage(PetPet.spawn("https://q1.qlogo.cn/g?b=qq&nk=" + targets.get(0) + "&s=640"));
             pack.getGroup().sendMsg(col);
         }
