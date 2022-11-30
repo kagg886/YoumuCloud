@@ -83,12 +83,6 @@ public class Connection extends WebSocketClient {
 	@Override
 	public void onClose(int p1, String p2, boolean p3) {
 		MessageCenter.sendLog(MessageCenter.Logger.Client, "云服务器连接中断!原因:(" + p1 + "):" + p2);
-		new Thread(() -> {
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException ignored) {}
-			MsgHandler.initServer(false,qid);
-		}).start();
 	}
 
 	@Override

@@ -32,6 +32,15 @@ public class MsgHandler implements ListenerHost {
     public void onGroupMessage(GroupMessageEvent event) {
         SessionBot bot = ((SessionBot) QInternet.findBot(event.getBot().getId()));
         if (bot == null) {
+            MessageCenter.sendLog(MessageCenter.Logger.Client, event.getBot().getId() + "准备连接...");
+            initServer(event.getBot().getId());
+            return;
+        }
+
+        if (bot.getConnection().getReadyState() != ReadyState.OPEN) {
+            QInternet.removeBot(bot);
+            MessageCenter.sendLog(MessageCenter.Logger.Client, event.getBot().getId() + "检测到未连接的bot，尝试重连ing...");
+            initServer(event.getBot().getId());
             return;
         }
         Group g = new Group(bot, event.getGroup().getId(), event.getGroup().getName());
@@ -46,13 +55,6 @@ public class MsgHandler implements ListenerHost {
         bot.getConnection().send(o.toString());
     }
 
-
-    @EventHandler
-    public void onBotOnline(BotOnlineEvent event) {
-        MessageCenter.sendLog(MessageCenter.Logger.Client, event.getBot().getId() + "准备连接...");
-        initServer(true, event.getBot().getId());
-    }
-
     @EventHandler
     public void onBotOffline(BotOfflineEvent event) {
         if (event instanceof BotOfflineEvent.Dropped) {
@@ -64,10 +66,7 @@ public class MsgHandler implements ListenerHost {
         MessageCenter.sendLog(MessageCenter.Logger.Client, event.getBot().getId() + "自动下线,连接已断开");
     }
 
-    public synchronized static void initServer(boolean isFirst, long id) {
-        if (!isFirst) {
-            MessageCenter.sendLog(MessageCenter.Logger.Client, "正在重连...");
-        }
+    public static void initServer(long id) {
         HashMap<String, String> map = new HashMap<>();
         JSONObject object = new JSONObject(YoumuConfig.INSTANCE.getHeader());
         try {
@@ -97,7 +96,6 @@ public class MsgHandler implements ListenerHost {
                     Thread.sleep(3000);
                 } catch (InterruptedException ignored) {
                 }
-                initServer(false, id);
             }).start();
             return;
         }
