@@ -1,0 +1,87 @@
+<PreferenceScreen
+        xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory app:title="视觉">
+
+        <SwitchPreferenceCompat
+                android:title="自动拉取背景图"
+                app:key="autoFetchBG"
+                app:defaultValue="true"/>
+
+        <DropDownPreference
+                app:key="BGColorSetting"
+                app:title="设置背景颜色"/>
+
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="连接">
+        <SwitchPreferenceCompat
+                app:defaultValue="true"
+                app:key="enableHeader"
+                app:summaryOn="插件在连接时会上传自定义参数"
+                app:summaryOff="插件在连接时仅上报版本和依赖平台"
+                app:title="启用参数设定"/>
+
+        <SwitchPreferenceCompat
+                app:defaultValue="false"
+                app:key="outputLogs"
+                app:summaryOn="插件会在主程序LogCat中输出收发包"
+                app:summaryOff="插件不会在主程序中输出收发包"
+                app:title="输出消息日志"/>
+
+        <EditTextPreference
+                app:key="server"
+                app:title="设置服务器地址"
+                app:summary="用于设置插件连接的妖梦云bot服务器地址"
+                app:defaultValue="43.129.249.30:8082"/>
+
+
+        <!--                app:defaultValue="ws://43.129.249.30:8082/youmu/api/"-->
+
+
+        <!--        <SwitchPreferenceCompat-->
+<!--                app:defaultValue="false"-->
+<!--                app:key="simpleUpload"-->
+<!--                app:summaryOn="插件不会上传一部分消息包，这可能会导致某些功能失效"-->
+<!--                app:summaryOff="插件会上传所有消息包，这可能会增加服务器运行负担"-->
+<!--                app:title="过滤消息包"/>-->
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="崩溃">
+        <SwitchPreferenceCompat
+                app:defaultValue="true"
+                app:key="logCrash"
+                app:summaryOn="插件崩溃后会向crash-log中写入数据"
+                app:summaryOff="插件崩溃后会直接闪退"
+                app:title="启用崩溃记录"/>
+        <DropDownPreference
+                app:key="crashOnce"
+                app:title="启动崩溃线程"
+                app:summary="点击此选项会让软件崩溃,没事别点"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="重置">
+
+        <DropDownPreference
+                app:key="restart"
+                app:title="重启APP"
+                app:summary="点击后会快速重启"/>
+
+        <DropDownPreference
+            app:key="reset"
+            app:title="重置设置"
+            app:summary="点击后插件会重置所有设置,慎入"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="版本信息">
+        <DropDownPreference
+                app:key="verInfo"
+                app:title="0"
+                app:summary="1"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

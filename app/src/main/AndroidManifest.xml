@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          package="com.kagg886.youmucloud">
+
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <application
+            android:name=".core.application.YouMuApplication"
+            android:allowBackup="true"
+            android:dataExtractionRules="@xml/data_extraction_rules"
+            android:fullBackupContent="@xml/backup_rules"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/app_name"
+            android:supportsRtl="true"
+            android:theme="@style/Theme.YoumuCloud"
+            android:usesCleartextTraffic="true">
+        <meta-data
+                android:name="vxpluginclass"
+                android:value="com.kagg886.youmucloud.bot.sqvz.PluginLoader"/>
+        <meta-data
+                android:name="author"
+                android:value="kagg886"/>
+        <meta-data
+                android:name="info"
+                android:value="This is Demo"/>
+        <meta-data
+                android:name="jump"
+                android:value="true"/>
+
+        <activity
+                android:name=".core.activity.MainActivity"
+                android:exported="true"
+                android:label="@string/title_activity_main"
+                android:theme="@style/Theme.YoumuCloud.NoActionBar">
+            <intent-filter>
+                <action android:name="saki.setqq.plugin.v8.main"/>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+                <action
+                        android:name="com.JumpActivity.QR.Speed.Aidl" />
+                <category
+                        android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
+        </activity>
+        <activity
+                android:name=".core.activity.CustomAppSettingsDialogHolderActivity"
+                android:theme="@style/TranslucentTheme"/>
+
+        <service
+                android:name=".bot.qrspeed.PluginService"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="com.QR.Speed.plugin.service"/>
+            </intent-filter>
+        </service>
+
+        <service
+                android:name=".bot.secluded.PluginService"
+                android:exported="true"
+                tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="mcsq.nxa.secluded.plugin"/>
+            </intent-filter>
+        </service>
+
+        <provider
+                android:name="androidx.core.content.FileProvider"
+                android:authorities="com.kagg886.youmucloud.fileprovider"
+                android:exported="false"
+                android:grantUriPermissions="true">
+            <meta-data
+                    android:name="android.support.FILE_PROVIDER_PATHS"
+                    android:resource="@xml/file_paths"/>
+        </provider>
+    </application>
+
+</manifest>

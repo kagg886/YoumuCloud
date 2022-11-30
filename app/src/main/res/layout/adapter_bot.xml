@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+                                                   android:layout_height="match_parent">
+
+    <ImageView
+            android:layout_width="90dp"
+            android:layout_height="90dp" app:srcCompat="@android:drawable/ic_delete"
+            android:id="@+id/adapter_bot_account"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"/>
+    <TextView
+            android:text="TextView"
+            android:textSize="20dp"
+            android:id="@+id/adapter_bot_plat"
+            app:layout_constraintStart_toEndOf="@+id/adapter_bot_account" app:layout_constraintTop_toTopOf="parent"
+            android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_marginStart="32dp"/>
+    <Button
+            android:text="详细信息"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/adapter_bot_details"
+            app:layout_constraintStart_toEndOf="@+id/adapter_bot_account"
+            app:layout_constraintTop_toBottomOf="@+id/adapter_bot_account"/>
+    <Button
+            android:text="终止连接"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/adapter_bot_restart"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toEndOf="@+id/adapter_bot_details"
+            app:layout_constraintTop_toBottomOf="@+id/adapter_bot_account"/>
+    <TextView
+            android:text="TextView"
+            android:textSize="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/adapter_bot_id"
+            app:layout_constraintTop_toBottomOf="@+id/adapter_bot_plat"
+            app:layout_constraintStart_toStartOf="@+id/adapter_bot_plat"
+            app:layout_constraintEnd_toEndOf="@+id/adapter_bot_plat"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
