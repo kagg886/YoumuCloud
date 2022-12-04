@@ -11,22 +11,37 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Pattern;
 
 public class Utils {
-	public static ThreadPoolExecutor service = (ThreadPoolExecutor) Executors.newFixedThreadPool(500);
-
+    public static ThreadPoolExecutor service = (ThreadPoolExecutor) Executors.newFixedThreadPool(500);
 
     public static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
-	public static Random random = new Random();
 
-	public static final long lowestVersion = 20220831;
+    public static Random random = new Random();
+
+
+    public static String randomStr(int length) {
+        StringBuilder b = new StringBuilder();
+        while (length != 0) {
+            length--;
+            char p;
+            if (Math.random() < 0.5) {
+                p = (char) (new Random().nextInt(26) + 97);
+            } else {
+                p = (char) (new Random().nextInt(26) + 65);
+            }
+            b.append(p);
+        }
+        return b.toString();
+    }
+
 
     public static ArrayList<String> getImage(GroupMsgPack pack) {
-		ArrayList<String> links = new ArrayList<>();
-		pack.getMessage().iterator(new MsgIterator() {
-			@Override
-			public void onImage(String s) {
-				links.add(s);
-			}
-		});
+        ArrayList<String> links = new ArrayList<>();
+        pack.getMessage().iterator(new MsgIterator() {
+            @Override
+            public void onImage(String s) {
+                links.add(s);
+            }
+        });
 		return links;
 	}
 
@@ -153,5 +168,4 @@ public class Utils {
 		}
 		return builder.toString();
 	}
-
 }

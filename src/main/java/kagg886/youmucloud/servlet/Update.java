@@ -1,6 +1,7 @@
 package kagg886.youmucloud.servlet;
 
 import kagg886.youmucloud.util.Statics;
+import kagg886.youmucloud.util.Utils;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -19,6 +20,8 @@ public class Update extends HttpServlet {
         FileInputStream fis = new FileInputStream(path);
         response.setCharacterEncoding("utf-8");
         response.setHeader("Content-Disposition", "attachment; filename=update.apk");
+        response.setHeader("Content-Length", String.valueOf(fis.available()));
+        Utils.log("av", String.valueOf(fis.available()));
         ServletOutputStream out = response.getOutputStream();
         byte[] bt = new byte[1024];
         int length = 0;

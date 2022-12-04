@@ -12,7 +12,6 @@ import kagg886.youmucloud.util.gif.AnimatedGifEncoder;
 import kagg886.youmucloud.util.nd.BNDFile;
 import kagg886.youmucloud.util.nd.BNDPerson;
 import kagg886.youmucloud.util.nd.BNDShare;
-import kagg886.youmucloud.util.nd.LanzouHelper;
 import kagg886.youmucloud.util.tank.GreyParams;
 import kagg886.youmucloud.util.tank.MirageTank;
 import org.json.JSONArray;
@@ -38,8 +37,7 @@ public class ToolKit extends MsgHandle {
 
     private MirageTank mirageTank = new MirageTank();
 
-    private String[] genshintypes = {"Role","Arm","Perm","FullRole","FullArm"};
-
+    private String[] genshintypes = {"Role", "Arm", "Perm", "FullRole", "FullArm"};
 
 
     public ToolKit() {
@@ -49,6 +47,16 @@ public class ToolKit extends MsgHandle {
             langheaders = JSONObjectStorage.obtain("res/langheaders.json");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void printBNDFile(List<BNDFile> file, StringBuilder buffer) throws Exception {
+        for (BNDFile f : file) {
+            if (f.isDirectory()) {
+                printBNDFile(f.listFiles(), buffer);
+            } else {
+                buffer.append("<br>").append(f.getPath()).append("---").append(f.getDownloadLink());
+            }
         }
     }
 
@@ -65,6 +73,21 @@ public class ToolKit extends MsgHandle {
             }
         }
 
+        if (text.startsWith(".tk homo")) {
+            String[] vars = text.split(" ");
+            if (vars.length != 3) {
+                sendMsg(pack, "参数识别失败!正确的格式为:.tk homo [数字]");
+                return;
+            }
+            try {
+                long s = System.currentTimeMillis();
+                long a = Long.parseLong(vars[2]);
+                sendMsg(pack, String.format("%d=%s\n运行时长:%dms", a, HomoNumberGenerator.getHomoStack(a), System.currentTimeMillis() - s));
+            } catch (Exception e) {
+                sendMsg(pack, "数字过大或过小!");
+            }
+        }
+
         if (text.startsWith(".tk lenovo")) {
             String[] vars = text.split(" ");
             if (vars.length != 3) {
@@ -72,14 +95,14 @@ public class ToolKit extends MsgHandle {
                 return;
             }
 
-            JSONObject o =new JSONArray(Jsoup.connect("https://lab.magiconch.com/api/nbnhhsh/guess")
+            JSONObject o = new JSONArray(Jsoup.connect("https://lab.magiconch.com/api/nbnhhsh/guess")
                     .ignoreContentType(true)
-                    .data("text",vars[2])
+                    .data("text", vars[2])
                     .method(Connection.Method.POST)
                     .execute().body()).optJSONObject(0);
 
             if (o == null || !o.has("trans")) {
-                sendMsg(pack,"找不到对应的关键词!");
+                sendMsg(pack, "找不到对应的关键词!");
                 return;
             }
             JSONArray ot = o.optJSONArray("trans");
@@ -91,7 +114,7 @@ public class ToolKit extends MsgHandle {
                 ot.remove(index);
                 k--;
             }
-            sendMsg(pack,b.substring(0,b.length() - 1));
+            sendMsg(pack, b.substring(0, b.length() - 1));
             //[{"name":"nsfw","trans":["not safe for work","not suitable for work","你是废物","包含色情、暴力等不宜在工作时间浏览的内容"]}]
 
         }
@@ -107,30 +130,30 @@ public class ToolKit extends MsgHandle {
                 if (vars[2].equals(type)) {
                     Connection c = Jsoup.connect("https://www.theresa3rd.cn:8080/api/" + type + "Pray/PrayTen?memberCode=" + qq);
                     c.ignoreContentType(true);
-                    c.header("authorzation","d330dcba84c84bef");
+                    c.header("authorzation", "d330dcba84c84bef");
                     JSONObject o = new JSONObject(c.execute().body());
                     if (o.optInt("code") != 0) {
-                        sendMsg(pack,o.optString("message"));
+                        sendMsg(pack, o.optString("message"));
                         return;
                     }
                     o = o.optJSONObject("data");
-                    MsgCollection col = MsgSpawner.newAtToast(qq,"当日API调用还剩:" + o.optInt("apiDailyCallSurplus") + "次");
+                    MsgCollection col = MsgSpawner.newAtToast(qq, "当日API调用还剩:" + o.optInt("apiDailyCallSurplus") + "次");
                     col.putImage(o.optString("imgHttpUrl"));
                     pack.getGroup().sendMsg(col);
                     return;
                 }
             }
-            sendMsg(pack,"抽卡类型错误!请检查:\n1.是否多加空格\n2.是否大写部分字母");
+            sendMsg(pack, "抽卡类型错误!请检查:\n1.是否多加空格\n2.是否大写部分字母");
         }
 
         if (text.startsWith(".tk tank")) {
             ArrayList<String> img = Utils.getImage(pack);
             if (img.size() != 2) {
-                sendMsg(pack,"使用此功能需要发送两张图片:第一张为表图，第二张为里图");
+                sendMsg(pack, "使用此功能需要发送两张图片:第一张为表图，第二张为里图");
                 return;
             }
 
-            if (ScoreUtil.checkCoin(this,pack,3)) {
+            if (ScoreUtil.checkCoin(this, pack, 3)) {
                 return;
             }
 
@@ -140,13 +163,13 @@ public class ToolKit extends MsgHandle {
             BufferedImage inside = ImageIO.read(Jsoup.connect(img.get(1)).ignoreContentType(true).execute().bodyStream());
             inside = ImageUtil.compress(inside);
 
-            inside = ImageUtil.scaleImg(inside,outside.getWidth(), outside.getHeight());
+            inside = ImageUtil.scaleImg(inside, outside.getWidth(), outside.getHeight());
 
             BufferedImage result = mirageTank.outputGrey(outside, inside, GreyParams.getDefault());
             result = ImageUtil.compress(result);
 
-            MsgCollection c = MsgSpawner.newAtToast(pack.getMember().getUin(),"生成完毕!");
-            c.putImage(ImageUtil.ImageToLink(result,"tank"));
+            MsgCollection c = MsgSpawner.newAtToast(pack.getMember().getUin(), "生成完毕!");
+            c.putImage(ImageUtil.ImageToLink(result, "tank"));
             pack.getGroup().sendMsg(c);
         }
 
@@ -189,38 +212,18 @@ public class ToolKit extends MsgHandle {
                         BNDPerson p = shareInfo.getSharePerson();
 
                         StringBuilder c = new StringBuilder();
-                        printBNDFile(shareInfo.getShareInfo(),c);
+                        printBNDFile(shareInfo.getShareInfo(), c);
 
-                        Mail.sendMessage(qq + "@qq.com", "百度网盘解析结果By kagg886",
-                                "上传者:", p.getNick(), c.toString()
-                                ,"<br>推荐使用IDM下载~<br>顺带一提的是，请设置4线程并修改UA为 netdisk;3.0.0.112"
-                        );
-
-                        sendMsg(pack,"解析结果已发送到您的qq邮箱中了!");
+                        Mail.sendMessage(qq + "@qq.com", "百度网盘解析", MsgSpawner.newPlainText("百度网盘解析结果By kagg886",
+                                "\n上传者:", p.getNick(), "\n", c.toString()
+                                , "\n推荐使用IDM下载~\n顺带一提的是，请设置4线程并修改UA为 netdisk;3.0.0.112"));
+                        sendMsg(pack, "解析结果已发送到您的qq邮箱中了!");
                     } catch (Exception e) {
-                        Utils.log("BNDError",Utils.PrintException(e));
+                        Utils.log("BNDError", Utils.PrintException(e));
                         sendMsg(pack, "运行百度网盘解析时出错!");
                     }
                 });
             }
-        }
-
-        if (text.startsWith(".tk lanzoudecode")) {
-            String[] vars = text.split(" ");
-            if (vars.length == 2) {
-                sendMsg(pack, "参数识别失败!正确的格式为:.tk lanzoudecode [蓝奏云链接]");
-                return;
-            }
-            LanzouHelper.Lanzou res;
-            try {
-                res = LanzouHelper.getLanZouRealLink(vars[2]);
-            } catch (Throwable e) {
-                sendMsg(pack, "解析失败!原因:\n" + e.getMessage());
-                return;
-            }
-            sendMsg(pack, "文件名:", res.getName(),
-                    "<br>大小:", res.getSize(),
-                    "<br>下载链接:", res.getDlLink());
         }
 
         if (text.startsWith(".tk gif")) {
@@ -417,16 +420,6 @@ public class ToolKit extends MsgHandle {
             }
             String j = new Code24().setCards(vars[2]).calc();
             sendMsg(pack, j);
-        }
-    }
-
-    public static void printBNDFile(List<BNDFile> file,StringBuilder buffer) throws Exception {
-        for (BNDFile f : file) {
-            if (f.isDirectory()) {
-                printBNDFile(f.listFiles(),buffer);
-            } else {
-                buffer.append("<br>").append(f.getPath()).append("---").append(f.getDownloadLink());
-            }
         }
     }
 }

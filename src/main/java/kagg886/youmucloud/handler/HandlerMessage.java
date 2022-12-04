@@ -21,6 +21,7 @@ public class HandlerMessage implements QQMsgListener {
     public static final LinkedList<MsgHandle> handles = new LinkedList<>();
 
     private String[] fixChar = new String[]{"<", ">", "[", "]"};
+    private String[] fixChar1 = new String[]{"!", "。", "/"};
 
     static {
         //注册指令监听器
@@ -58,6 +59,11 @@ public class HandlerMessage implements QQMsgListener {
     }
 
     @Override
+    public void onMemberMsg(GroupMemberPack arg0) {
+
+    }
+
+    @Override
     public void onGroupMsg(GroupMsgPack pack) {
 //		Utils.service.submit(new Runnable() {
 //			@Override
@@ -66,7 +72,7 @@ public class HandlerMessage implements QQMsgListener {
             pack.getGroup().sendMsg(MsgSpawner.newAtToast(pack.getMember().getUin(), "服务器繁忙,请稍后再试"));
         }
 
-        if (((YoumuUser) QInternet.findBot(pack.getMember().getBotQQ())).getClient().getHeaders().optInt("ver", 0) < Utils.lowestVersion) {
+        if (((YoumuUser) QInternet.findBot(pack.getMember().getBotQQ())).getClient().getHeaders().optInt("ver", 0) < Statics.lowestVersion) {
             pack.getGroup().sendMsg(MsgSpawner.newPlainText("抱歉，当前版本因为兼容性而暂停使用\n请下载最新版YoumuCloud,下载地址:\nhttp://" + Statics.ip + "/youmu/text?path=update"));
             return;
         }
@@ -91,7 +97,7 @@ public class HandlerMessage implements QQMsgListener {
                 //replace:点歌 xxx   .ms nes xxx
                 JSONObject source = msgHandle.getParams(pack);
 
-                for (Iterator<String> it = source.keys(); it.hasNext();) {
+                for (Iterator<String> it = source.keys(); it.hasNext(); ) {
                     String rpl = it.next(); //每个key
                     if (rpl.contains(":") && rpl.split(":").length == 2 && rpl.startsWith("replace:")) {
                         String rp = rpl.split(":")[1];
@@ -142,7 +148,19 @@ public class HandlerMessage implements QQMsgListener {
 
                             @Override
                             public void onText(String s) {
-                                c.putText(s.replace(fix, ""));
+                                if (s.contains(fix)) {
+                                    s = s.replace(fix, "");
+                                }
+                                if (s.contains("  ")) {
+                                    s = s.replace("  ", " ");
+                                }
+
+                                for (String fix1 : fixChar1) {
+                                    if (s.startsWith(fix1)) {
+                                        s = "." + s.substring(1);
+                                    }
+                                }
+                                c.putText(s);
                             }
 
                             @Override
@@ -171,10 +189,4 @@ public class HandlerMessage implements QQMsgListener {
 //			}
 //		});
     }
-
-    @Override
-    public void onMemberMsg(GroupMemberPack arg0) {
-
-    }
-
 }

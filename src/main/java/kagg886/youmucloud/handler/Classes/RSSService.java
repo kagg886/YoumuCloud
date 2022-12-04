@@ -68,7 +68,7 @@ public class RSSService extends MsgHandle {
                     }
 
                     if (options.optString(pack.getMember().getUin() + "_mail", "on").equals("on")) {
-                        Mail.sendMessage(pack.getMember().getUin() + "@qq.com", "RSS推送", col.getTexts().replace("\n","<br>"));
+                        Mail.sendMessage(pack.getMember().getUin() + "@qq.com", "RSS推送", col);
                         sendMsg(pack, "已将推送链接发送到您的QQ邮件当中\n若未接收到邮件,可能是您未注册QQ邮箱或其他原因");
                         return;
                     }
@@ -101,7 +101,7 @@ public class RSSService extends MsgHandle {
                         col.putText("————————————");
                     }
                     if (options.optString(pack.getMember().getUin() + "_mail", "on").equals("on")) {
-                        Mail.sendMessage(pack.getMember().getUin() + "@qq.com", "RSS推送", col.getTexts());
+                        Mail.sendMessage(pack.getMember().getUin() + "@qq.com", "RSS推送", col);
                         sendMsg(pack, "已将推送链接发送到您的QQ邮件当中\n若未接收到邮件,可能是您未注册QQ邮箱或其他原因");
                         return;
                     }

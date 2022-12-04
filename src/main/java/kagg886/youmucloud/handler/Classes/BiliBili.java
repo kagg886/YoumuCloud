@@ -138,12 +138,14 @@ public class BiliBili extends MsgHandle {
                 rtn = rtn.optJSONObject("data").optJSONObject("rtmp");
 
 
+                MsgCollection m = MsgSpawner.newAtToast(pack.getMember().getUin(), "服务器地址:", rtn.optString("addr"), "串流密钥:", rtn.optString("code"));
+
                 if (text.contains("-nomail")) {
-                    sendMsg(pack,"服务器地址:", rtn.optString("addr"), "\n串流密钥:", rtn.optString("code"));
+                    pack.getGroup().sendMsg(m);
                     return;
                 }
-                Mail.sendMessage(pack.getMember().getUin() + "@qq.com","您的直播推流码", "服务器地址:", rtn.optString("addr"), "<br>串流密钥:", rtn.optString("code"));
-                sendMsg(pack,"推流码已发送到您的QQ邮箱中\n若您未收到邮件,请再试一次或在末尾添加\" -nomail\"(一定要在分区id后加一个空格)");
+                Mail.sendMessage(pack.getMember().getUin() + "@qq.com", "您的直播推流码", m);
+                sendMsg(pack, "推流码已发送到您的QQ邮箱中\n若您未收到邮件,请再试一次或在末尾添加\" -nomail\"(一定要在分区id后加一个空格)");
             }
 
             if (text.startsWith(".blive zone")) {

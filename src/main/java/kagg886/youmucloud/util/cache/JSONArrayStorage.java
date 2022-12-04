@@ -12,14 +12,19 @@ public class JSONArrayStorage extends JSONArray {
 
 	private static ConcurrentHashMap<String,JSONArrayStorage> storagesCache = new ConcurrentHashMap<>(); //缓存池，减少从硬盘的读操作
 
-	public static JSONArrayStorage obtain(String relativeDir) throws Exception {
-		if (storagesCache.containsKey(relativeDir)) {
-			return storagesCache.get(relativeDir);
-		}
-		JSONArrayStorage s = new JSONArrayStorage(relativeDir);
-		storagesCache.put(relativeDir,s);
-		return s;
-	}
+	public static JSONArrayStorage obtain(String relativeDir) {
+        if (storagesCache.containsKey(relativeDir)) {
+            return storagesCache.get(relativeDir);
+        }
+        JSONArrayStorage s = null;
+        try {
+            s = new JSONArrayStorage(relativeDir);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        storagesCache.put(relativeDir, s);
+        return s;
+    }
 
 	private JSONArrayStorage(String relativeDir) throws Exception {
 		super(getJSON(relativeDir = Statics.data_dir + relativeDir));
