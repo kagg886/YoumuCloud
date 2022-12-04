@@ -7,6 +7,7 @@ import com.kagg886.youmucloud_mirai.websocket.MessageCenter;
 import kagg886.qinternet.Content.Group;
 import kagg886.qinternet.Content.Member;
 import kagg886.qinternet.Content.Person;
+import kagg886.qinternet.Message.GroupMemberPack;
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.QInternet;
@@ -17,6 +18,7 @@ import net.mamoe.mirai.event.ListenerHost;
 import net.mamoe.mirai.event.events.BotOfflineEvent;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.event.events.MemberJoinEvent;
 import org.java_websocket.WebSocket;
 import org.java_websocket.enums.ReadyState;
 import org.json.JSONObject;
@@ -27,6 +29,33 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class MsgHandler implements ListenerHost {
+
+    @EventHandler
+    public void onMemberEnter(MemberJoinEvent event) {
+        SessionBot bot = ((SessionBot) QInternet.findBot(event.getBot().getId()));
+        if (bot == null) {
+            MessageCenter.sendLog(MessageCenter.Logger.Client, event.getBot().getId() + "准备连接...");
+            initServer(event.getBot().getId());
+            return;
+        }
+
+        if (bot.getConnection().getReadyState() != ReadyState.OPEN) {
+            QInternet.removeBot(bot);
+            MessageCenter.sendLog(MessageCenter.Logger.Client, event.getBot().getId() + "检测到未连接的bot，尝试重连ing...");
+            initServer(event.getBot().getId());
+            return;
+        }
+        Group g = new Group(bot, event.getGroup().getId(), event.getGroup().getName());
+        Member m = new Member(bot,
+                event.getGroup().getId(),
+                event.getMember().getId(),
+                event.getMember().getNameCard(), 0, Person.Sex.BOY, "幻想乡", event.getMember().getNick(), Member.Permission.MEMBER);
+
+        GroupMemberPack pack = new GroupMemberPack(g, GroupMemberPack.Type.enter,m);
+        Action o = Action.newAction("onMember");
+        o.setMsg(pack.toString());
+        bot.getConnection().send(o.toString());
+    }
 
     @EventHandler
     public void onGroupMessage(GroupMessageEvent event) {
