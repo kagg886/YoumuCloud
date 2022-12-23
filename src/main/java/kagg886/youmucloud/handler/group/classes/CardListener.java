@@ -1,9 +1,9 @@
-package kagg886.youmucloud.handler.Classes;
+package kagg886.youmucloud.handler.group.classes;
 
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
-import kagg886.youmucloud.handler.MsgHandle;
+import kagg886.youmucloud.handler.group.GroupMsgHandle;
 import kagg886.youmucloud.util.MsgIterator;
 import kagg886.youmucloud.util.cache.JSONObjectStorage;
 import org.json.JSONArray;
@@ -17,13 +17,13 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 
-public class CardListener extends MsgHandle {
+public class CardListener extends GroupMsgHandle {
 
     @Override
     public void handle(GroupMsgPack pack) throws Exception {
         JSONObjectStorage cfg = JSONObjectStorage.obtain("data/" + pack.getGroup().getId() + "/Config.json");
         if (pack.getMessage().containMsgType(MsgCollection.MsgType.xml) || pack.getMessage().containMsgType(MsgCollection.MsgType.json) || pack.getMessage().containMsgType(MsgCollection.MsgType.img)) {
-            if (cfg.optString("videoformat","on").equals("on")) {
+            if (cfg.optString("videoformat", "on").equals("on")) {
                 bliDecode(pack);
                 return;
             }

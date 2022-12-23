@@ -3,44 +3,50 @@ package kagg886.youmucloud.handler;
 import kagg886.qinternet.Interface.QQMsgListener;
 import kagg886.qinternet.Message.*;
 import kagg886.qinternet.QInternet;
-import kagg886.youmucloud.handler.Classes.*;
-import kagg886.youmucloud.handler.Classes.game.LiteGame;
-import kagg886.youmucloud.handler.Classes.game.ScoreStatis;
 import kagg886.youmucloud.handler.QI.YoumuUser;
+import kagg886.youmucloud.handler.group.GroupMsgHandle;
+import kagg886.youmucloud.handler.group.classes.*;
+import kagg886.youmucloud.handler.group.classes.game.Akinator;
+import kagg886.youmucloud.handler.group.classes.game.LiteGame;
+import kagg886.youmucloud.handler.group.classes.game.ScoreStatis;
+import kagg886.youmucloud.handler.memberevent.MemberMsgHandle;
+import kagg886.youmucloud.handler.memberevent.classes.BlackCheck;
 import kagg886.youmucloud.util.MsgIterator;
 import kagg886.youmucloud.util.Statics;
 import kagg886.youmucloud.util.Utils;
 import org.json.JSONObject;
 
 import java.util.Iterator;
-import java.util.LinkedList;
+
+import static kagg886.youmucloud.handler.group.GroupMsgHandle.GROUP_MSG_HANDLES;
+import static kagg886.youmucloud.handler.memberevent.MemberMsgHandle.MEMBER_MSG_HANDLES;
+
 
 public class HandlerMessage implements QQMsgListener {
 
     public static final HandlerMessage INSTANCE = new HandlerMessage();
-    public static final LinkedList<MsgHandle> handles = new LinkedList<>();
+
 
     private String[] fixChar = new String[]{"<", ">", "[", "]"};
     private String[] fixChar1 = new String[]{"!", "。", "/"};
 
     static {
-        //注册指令监听器
-        try {
-            handles.add(new CardListener());
-        } catch (Exception e) {
-            Utils.PrintException(e);
-        }
-        handles.add(new Help());
-        handles.add(new MC());
-        handles.add(new MuseDash());
-        handles.add(new ToolKit());
-        handles.add(new Music());
-        handles.add(new hso());
-        handles.add(new BiliBili());
-        handles.add(new RSSService());
-        handles.add(new ScoreStatis());
-        handles.add(new Spawn());
-        handles.add(new LiteGame());
+        GROUP_MSG_HANDLES.add(new CardListener());
+        GROUP_MSG_HANDLES.add(new AutoReply());
+        GROUP_MSG_HANDLES.add(new Help());
+        GROUP_MSG_HANDLES.add(new MC());
+        GROUP_MSG_HANDLES.add(new MuseDash());
+        GROUP_MSG_HANDLES.add(new ToolKit());
+        GROUP_MSG_HANDLES.add(new Music());
+        GROUP_MSG_HANDLES.add(new hso());
+        GROUP_MSG_HANDLES.add(new BiliBili());
+        GROUP_MSG_HANDLES.add(new RSSService());
+        GROUP_MSG_HANDLES.add(new ScoreStatis());
+        GROUP_MSG_HANDLES.add(new Spawn());
+        GROUP_MSG_HANDLES.add(new LiteGame());
+        GROUP_MSG_HANDLES.add(new Akinator());
+        //----------------------------------------//
+        MEMBER_MSG_HANDLES.add(new BlackCheck());
     }
 
     @Override
@@ -60,7 +66,14 @@ public class HandlerMessage implements QQMsgListener {
 
     @Override
     public void onMemberMsg(GroupMemberPack arg0) {
-
+        for (MemberMsgHandle memberMsgHandle : MEMBER_MSG_HANDLES) {
+            try {
+                memberMsgHandle.handle(arg0);
+            } catch (Exception e) {
+                memberMsgHandle.sendMsg(arg0, "运行bot时出错!请复制以下错误信息然后加入官方群告知管理员!\n", Utils.PrintException(e));
+                memberMsgHandle.sendClientLog(arg0, Utils.PrintException(e));
+            }
+        }
     }
 
     @Override
@@ -79,7 +92,7 @@ public class HandlerMessage implements QQMsgListener {
         boolean canFilter = true;
         boolean canReplacer = true;
         boolean canAutoFixer = true;
-        for (MsgHandle msgHandle : handles) {
+        for (GroupMsgHandle msgHandle : GROUP_MSG_HANDLES) {
 
             if (canFilter) { //指令过滤器，加一个bool保证只过滤一次
                 //444_fliter   11,112   11

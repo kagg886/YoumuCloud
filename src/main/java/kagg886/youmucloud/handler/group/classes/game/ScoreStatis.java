@@ -1,16 +1,16 @@
-package kagg886.youmucloud.handler.Classes.game;
+package kagg886.youmucloud.handler.group.classes.game;
 
 import kagg886.qinternet.Message.GroupMsgPack;
-import kagg886.youmucloud.handler.MsgHandle;
+import kagg886.youmucloud.handler.group.GroupMsgHandle;
 import kagg886.youmucloud.util.Utils;
 import kagg886.youmucloud.util.cache.JSONObjectStorage;
 import kagg886.youmucloud.util.sort.Sorter;
 
 import java.util.Calendar;
 
-public class ScoreStatis extends MsgHandle {
+public class ScoreStatis extends GroupMsgHandle {
 
-    public static JSONObjectStorage exps,timer;
+    public static JSONObjectStorage exps, timer;
 
 
     private Sorter ranks = new Sorter(exps);

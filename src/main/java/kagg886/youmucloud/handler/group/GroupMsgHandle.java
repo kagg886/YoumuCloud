@@ -1,4 +1,4 @@
-package kagg886.youmucloud.handler;
+package kagg886.youmucloud.handler.group;
 
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
@@ -9,17 +9,22 @@ import kagg886.youmucloud.handler.QI.SessionGroupAPI;
 import kagg886.youmucloud.handler.QI.YoumuUser;
 import org.json.JSONObject;
 
-public abstract class MsgHandle {
-	
-	public abstract void handle(GroupMsgPack pack) throws Exception;
-	public void sendMsg(GroupMsgPack p,String... msg) {
-		p.getGroup().sendMsg(MsgSpawner.newAtToast(p.getMember().getUin(), msg));
-	}
-	
-	public void sendClientLog(GroupMsgPack p,String log) {
-		Action action = new Action("log");
-		action.put("msg",log);
-		SessionGroupAPI groupAPI = (SessionGroupAPI) QInternet.findBot(p.getGroup().getBotQQ()).getGroupAPI();
+import java.util.LinkedList;
+
+public abstract class GroupMsgHandle {
+
+    public static final LinkedList<GroupMsgHandle> GROUP_MSG_HANDLES = new LinkedList<>();
+
+    public abstract void handle(GroupMsgPack pack) throws Exception;
+
+    public void sendMsg(GroupMsgPack p, String... msg) {
+        p.getGroup().sendMsg(MsgSpawner.newAtToast(p.getMember().getUin(), msg));
+    }
+
+    public void sendClientLog(GroupMsgPack p, String log) {
+        Action action = new Action("log");
+        action.put("msg", log);
+        SessionGroupAPI groupAPI = (SessionGroupAPI) QInternet.findBot(p.getGroup().getBotQQ()).getGroupAPI();
 		groupAPI.sendMsg(action);
 	}
 	

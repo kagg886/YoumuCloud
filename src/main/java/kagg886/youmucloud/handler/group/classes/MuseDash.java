@@ -1,9 +1,9 @@
-package kagg886.youmucloud.handler.Classes;
+package kagg886.youmucloud.handler.group.classes;
 
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
-import kagg886.youmucloud.handler.MsgHandle;
+import kagg886.youmucloud.handler.group.GroupMsgHandle;
 import kagg886.youmucloud.util.cache.JSONObjectStorage;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,16 +13,16 @@ import org.jsoup.Jsoup;
 
 import java.util.Iterator;
 
-public class MuseDash extends MsgHandle {
-	private JSONObject source;
+public class MuseDash extends GroupMsgHandle {
+    private JSONObject source;
 
-	public MuseDash() {
-		try {
-			source = JSONObjectStorage.obtain("res/MuseMusic.json").optJSONObject("fullAlbums");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    public MuseDash() {
+        try {
+            source = JSONObjectStorage.obtain("res/MuseMusic.json").optJSONObject("fullAlbums");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 	@Override
 	public void handle(GroupMsgPack pack) {

@@ -1,8 +1,8 @@
-package kagg886.youmucloud.handler.Classes;
+package kagg886.youmucloud.handler.group.classes;
 
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
-import kagg886.youmucloud.handler.MsgHandle;
+import kagg886.youmucloud.handler.group.GroupMsgHandle;
 import kagg886.youmucloud.util.Mail;
 import kagg886.youmucloud.util.Statics;
 import kagg886.youmucloud.util.Utils;
@@ -10,7 +10,7 @@ import kagg886.youmucloud.util.WaitService;
 
 import java.io.File;
 
-public class Help extends MsgHandle {
+public class Help extends GroupMsgHandle {
 
     private String[] rootCommands;
 

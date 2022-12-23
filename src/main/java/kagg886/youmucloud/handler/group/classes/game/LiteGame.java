@@ -1,9 +1,9 @@
-package kagg886.youmucloud.handler.Classes.game;
+package kagg886.youmucloud.handler.group.classes.game;
 
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
-import kagg886.youmucloud.handler.MsgHandle;
+import kagg886.youmucloud.handler.group.GroupMsgHandle;
 import kagg886.youmucloud.util.ImageUtil;
 import kagg886.youmucloud.util.Statics;
 import kagg886.youmucloud.util.Utils;
@@ -17,7 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 
-public class LiteGame extends MsgHandle {
+public class LiteGame extends GroupMsgHandle {
 
     interface GameRunnable extends Runnable {
         long getOwner();

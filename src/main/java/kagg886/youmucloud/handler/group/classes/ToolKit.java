@@ -1,9 +1,9 @@
-package kagg886.youmucloud.handler.Classes;
+package kagg886.youmucloud.handler.group.classes;
 
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
-import kagg886.youmucloud.handler.MsgHandle;
+import kagg886.youmucloud.handler.group.GroupMsgHandle;
 import kagg886.youmucloud.util.*;
 import kagg886.youmucloud.util.cache.JSONArrayStorage;
 import kagg886.youmucloud.util.cache.JSONObjectStorage;
@@ -29,7 +29,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ToolKit extends MsgHandle {
+public class ToolKit extends GroupMsgHandle {
 
     private JSONArrayStorage answers;
     private String[] os;

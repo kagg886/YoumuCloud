@@ -1,9 +1,9 @@
-package kagg886.youmucloud.handler.Classes;
+package kagg886.youmucloud.handler.group.classes;
 
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
-import kagg886.youmucloud.handler.MsgHandle;
+import kagg886.youmucloud.handler.group.GroupMsgHandle;
 import kagg886.youmucloud.util.Mail;
 import kagg886.youmucloud.util.Utils;
 import kagg886.youmucloud.util.cache.JSONArrayStorage;
@@ -14,7 +14,7 @@ import org.json.XML;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
-public class RSSService extends MsgHandle {
+public class RSSService extends GroupMsgHandle {
     @Override
     public void handle(GroupMsgPack pack) throws Exception {
         String text = pack.getMessage().getTexts();

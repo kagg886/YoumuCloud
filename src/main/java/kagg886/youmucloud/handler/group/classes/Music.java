@@ -1,9 +1,9 @@
-package kagg886.youmucloud.handler.Classes;
+package kagg886.youmucloud.handler.group.classes;
 
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
-import kagg886.youmucloud.handler.MsgHandle;
+import kagg886.youmucloud.handler.group.GroupMsgHandle;
 import kagg886.youmucloud.util.MusicFactory;
 import kagg886.youmucloud.util.ScoreUtil;
 import kagg886.youmucloud.util.Utils;
@@ -16,17 +16,17 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Music extends MsgHandle {
+public class Music extends GroupMsgHandle {
 
-	@Override
-	public void handle(final GroupMsgPack pack) throws Exception {
-		final String text = pack.getMessage().getTexts();
-		final long qq = pack.getMember().getUin();
+    @Override
+    public void handle(final GroupMsgPack pack) throws Exception {
+        final String text = pack.getMessage().getTexts();
+        final long qq = pack.getMember().getUin();
 
-		if (WaitService.hasKey(qq + "_songs")) {
-			if (WaitService.addCall(qq + "_songs",text)) {
-				sendMsg(pack,"选歌成功,选项:" + text);
-			} else {
+        if (WaitService.hasKey(qq + "_songs")) {
+            if (WaitService.addCall(qq + "_songs", text)) {
+                sendMsg(pack, "选歌成功,选项:" + text);
+            } else {
 				sendMsg(pack,"选歌失败");
 			}
 		}

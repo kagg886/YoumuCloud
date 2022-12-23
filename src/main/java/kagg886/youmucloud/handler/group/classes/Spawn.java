@@ -1,9 +1,9 @@
-package kagg886.youmucloud.handler.Classes;
+package kagg886.youmucloud.handler.group.classes;
 
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
-import kagg886.youmucloud.handler.MsgHandle;
+import kagg886.youmucloud.handler.group.GroupMsgHandle;
 import kagg886.youmucloud.servlet.spawn.*;
 import kagg886.youmucloud.util.ImageUtil;
 import kagg886.youmucloud.util.ScoreUtil;
@@ -22,7 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
-public class Spawn extends MsgHandle {
+public class Spawn extends GroupMsgHandle {
 
     private JSONArray colors, weapons, objects, body, roles, chests, hairs, height, dispositions;
 

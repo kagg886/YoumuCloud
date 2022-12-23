@@ -1,9 +1,9 @@
-package kagg886.youmucloud.handler.Classes;
+package kagg886.youmucloud.handler.group.classes;
 
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
-import kagg886.youmucloud.handler.MsgHandle;
+import kagg886.youmucloud.handler.group.GroupMsgHandle;
 import kagg886.youmucloud.util.Mail;
 import kagg886.youmucloud.util.PixivUtil;
 import kagg886.youmucloud.util.ScoreUtil;
@@ -19,7 +19,7 @@ import org.jsoup.select.Elements;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-public class hso extends MsgHandle {
+public class hso extends GroupMsgHandle {
 
     private static final String saucenaoApikey = "7c949b57a221cb9c8e8fd5fe9055952193f58dcf";
     public static JSONArrayStorage imgs;

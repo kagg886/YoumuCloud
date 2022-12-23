@@ -1,9 +1,9 @@
-package kagg886.youmucloud.handler.Classes;
+package kagg886.youmucloud.handler.group.classes;
 
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
-import kagg886.youmucloud.handler.MsgHandle;
+import kagg886.youmucloud.handler.group.GroupMsgHandle;
 import kagg886.youmucloud.util.Mail;
 import kagg886.youmucloud.util.ScoreUtil;
 import kagg886.youmucloud.util.cache.JSONObjectStorage;
@@ -14,7 +14,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 
 
-public class BiliBili extends MsgHandle {
+public class BiliBili extends GroupMsgHandle {
     private JSONArray zones;
 
     public BiliBili() {

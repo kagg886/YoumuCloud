@@ -1,9 +1,9 @@
-package kagg886.youmucloud.handler.Classes;
+package kagg886.youmucloud.handler.group.classes;
 
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
-import kagg886.youmucloud.handler.MsgHandle;
+import kagg886.youmucloud.handler.group.GroupMsgHandle;
 import kagg886.youmucloud.util.ScoreUtil;
 import kagg886.youmucloud.util.Utils;
 import org.json.JSONArray;
@@ -17,17 +17,17 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
-public class MC extends MsgHandle {
+public class MC extends GroupMsgHandle {
 
-	@Override
-	public void handle(GroupMsgPack pack) throws Exception {
-		String text = pack.getMessage().getTexts();
-		
-		if (text.startsWith(".mc historyname")) {
-			String[] var = text.split(" ");
-			if (var.length == 2) {
-				sendMsg(pack, "格式识别失败!正确的格式为:.mc historyname [用户id]");
-				return;
+    @Override
+    public void handle(GroupMsgPack pack) throws Exception {
+        String text = pack.getMessage().getTexts();
+
+        if (text.startsWith(".mc historyname")) {
+            String[] var = text.split(" ");
+            if (var.length == 2) {
+                sendMsg(pack, "格式识别失败!正确的格式为:.mc historyname [用户id]");
+                return;
 			}
 
 			if (ScoreUtil.checkCoin(this,pack,3)) {
