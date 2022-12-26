@@ -5,7 +5,6 @@ import kagg886.qinternet.Content.Member;
 import kagg886.qinternet.Interface.GroupAPI;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.youmucloud.Client;
-import kagg886.youmucloud.util.Statics;
 import kagg886.youmucloud.util.Utils;
 import kagg886.youmucloud.util.WaitService;
 import org.json.JSONArray;
@@ -85,11 +84,13 @@ public class SessionGroupAPI implements GroupAPI {
 	public void sendMsg(long arg0, MsgCollection arg1) {
 		Action action = new Action("sendGroupMsg");
 		action.put("groupid", arg0);
-		action.put("msg",arg1);
-		sendMsg(action);
-		try {
-			Utils.writeStringToFile(Statics.data_dir + "/data/" + arg0 + "/latest.txt",arg1.toString());
-		} catch (IOException ignored) {}
+		action.put("msg", arg1);
+		synchronized (getClient()) {
+			sendMsg(action);
+		}
+//		try {
+//			Utils.writeStringToFile(Statics.data_dir + "/data/" + arg0 + "/latest.txt",arg1.toString());
+//		} catch (IOException ignored) {}
 	}
 
 	@Override

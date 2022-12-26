@@ -10,7 +10,7 @@ import kagg886.youmucloud.handler.group.classes.game.Akinator;
 import kagg886.youmucloud.handler.group.classes.game.LiteGame;
 import kagg886.youmucloud.handler.group.classes.game.ScoreStatis;
 import kagg886.youmucloud.handler.memberevent.MemberMsgHandle;
-import kagg886.youmucloud.handler.memberevent.classes.BlackCheck;
+import kagg886.youmucloud.handler.memberevent.classes.Welcome;
 import kagg886.youmucloud.util.MsgIterator;
 import kagg886.youmucloud.util.Statics;
 import kagg886.youmucloud.util.Utils;
@@ -46,7 +46,7 @@ public class HandlerMessage implements QQMsgListener {
         GROUP_MSG_HANDLES.add(new LiteGame());
         GROUP_MSG_HANDLES.add(new Akinator());
         //----------------------------------------//
-        MEMBER_MSG_HANDLES.add(new BlackCheck());
+        MEMBER_MSG_HANDLES.add(new Welcome());
     }
 
     @Override

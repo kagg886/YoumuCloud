@@ -43,7 +43,7 @@ public class Music extends GroupMsgHandle {
 			}
 
 			//获取数据
-            String call = Jsoup.connect("https://www.ckyhahaha.info/search?keywords=" + text.replace(".ms nes ", ""))
+            String call = Jsoup.connect("http://cloud-music.pl-fe.cn/search?keywords=" + text.replace(".ms nes ", ""))
                     .ignoreContentType(true)
                     .execute().body();
             JSONArray musicList = new JSONObject(call).optJSONObject("result").optJSONArray("songs");
