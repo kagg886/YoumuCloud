@@ -19,10 +19,12 @@ import kagg886.qinternet.Content.Group;
 import kagg886.qinternet.Content.Member;
 import kagg886.qinternet.Content.Person;
 import kagg886.qinternet.Content.QQBot;
+import kagg886.qinternet.Message.GroupMemberPack;
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.QInternet;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class PluginService extends Service {
@@ -33,6 +35,7 @@ public class PluginService extends Service {
     private final Stub stub = new Stub() {
         @Override
         public void onMessageHandler(PluginMsg msg) throws RemoteException {
+
             if (msg.type == PluginMsg.TYPE_GROUP_MSG) {
                 for (QQBot a : QInternet.getList()) {
                     SessionBot c = (SessionBot) a;
@@ -41,6 +44,7 @@ public class PluginService extends Service {
                         Action newAction = Action.newAction("onGroupMsg");
                         newAction.setMsg(groupMsgPack.toString());
                         c.getConn().send(newAction.toString());
+                        return;
                     }
                 }
             }

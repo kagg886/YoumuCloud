@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements IOUtil.Response, 
         //临时代码，将在未来删除
         SharedPreferences pf = PreferenceManager.getDefaultSharedPreferences(this);
         if (pf.getBoolean("launchAs4_3",true)) {
-            pf.edit().putString("server","43.129.249.30:8082").putBoolean("launchAs4_3",false).apply();
+            pf.edit().putString("server","youmucloud.kagg886.top").putBoolean("launchAs4_3",false).apply();
         }
 
 

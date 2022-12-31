@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 public class ContextUtil {
 
     public static String getServerAddress(Context ctx) {
-        return PreferenceManager.getDefaultSharedPreferences(ctx).getString("server", "43.129.249.30:8082");
+        return PreferenceManager.getDefaultSharedPreferences(ctx).getString("server", "youmucloud.kagg886.top");
     }
 
     public static void copyString(MainActivity ctx, String text) {

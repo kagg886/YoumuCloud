@@ -18,6 +18,7 @@ import kagg886.qinternet.Content.Group;
 import kagg886.qinternet.Content.Member;
 import kagg886.qinternet.Content.Person;
 import kagg886.qinternet.Content.QQBot;
+import kagg886.qinternet.Message.GroupMemberPack;
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.QInternet;
 import mcsq.nxa.secluded.msg.Messenger;
@@ -58,11 +59,23 @@ public class PluginService extends PluginBinder implements PluginBinderHandler {
             BotConnection.init(conn, PreferenceManager.getDefaultSharedPreferences(this));
         }
 
+        if (msg.hasMsg(Msg.GroupNewMember)) {
+            SessionBot findBot2 = (SessionBot) QInternet.findBot(bot);
+            Group group = new Group(findBot2, msg.getLong("GroupId"), "unknown");
+            Member member = new Member(findBot2, msg.getLong("GroupId"), msg.getLong("Uin"), msg.getString("UinName"), 10, Person.Sex.BOY, "幻想乡", msg.getString("UinName"), Member.Permission.MEMBER);
+            GroupMemberPack pack = new GroupMemberPack(group, GroupMemberPack.Type.enter, member);
+            Action newAction = Action.newAction("onMember");
+            newAction.setMsg(pack.toString());
+            findBot2.getConn().send(newAction.toString());
+            return;
+        }
+
         if (msg.hasMsg(Msg.Offline)) {
             SessionBot off = (SessionBot) QInternet.findBot(bot);
             off.getConn().close();
             QInternet.removeBot(off);
             SecludedMessageCenter.INSTANCE.sendLog(AbstractMessageCenter.LoggerLevel.Client, bot + "下线,连接自动断开");
+            return;
         }
 
         if (msg.hasMsg("Group") && msg.getLong("Account") != msg.getLong("Uin")) {

@@ -34,10 +34,10 @@
                 app:key="server"
                 app:title="设置服务器地址"
                 app:summary="用于设置插件连接的妖梦云bot服务器地址"
-                app:defaultValue="43.129.249.30:8082"/>
+                app:defaultValue="youmucloud.kagg886.top"/>
 
 
-        <!--                app:defaultValue="ws://43.129.249.30:8082/youmu/api/"-->
+        <!--                app:defaultValue="ws://youmucloud.kagg886.top/youmu/api/"-->
 
 
         <!--        <SwitchPreferenceCompat-->

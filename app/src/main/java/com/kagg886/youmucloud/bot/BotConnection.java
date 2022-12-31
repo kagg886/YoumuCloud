@@ -113,7 +113,7 @@ public abstract class BotConnection<K,V> extends WebSocketClient {
     }
 
     public BotConnection(long j, AbstractMessageCenter<K,V> bridge,SharedPreferences sp) {
-        super(URI.create("ws://" + sp.getString("server", "43.129.249.30:8082") + "/youmu/api/"+ j));
+        super(URI.create("ws://" + sp.getString("server", "youmucloud.kagg886.top") + "/youmu/api/"+ j));
         this.qid = j;
         this.center = bridge;
         this.sp = sp;

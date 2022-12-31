@@ -40,6 +40,13 @@ public class Connection extends BotConnection<PluginMsg,PluginMsg> {
                 pluginMsg.time =  decodeAction.optInt("time") * 60000L;
                 center.sendMsg(pluginMsg);
             }
+            if (action.startsWith("memberKick")) {
+                PluginMsg pluginMsg = new PluginMsg();
+                pluginMsg.type = 12;
+                pluginMsg.groupid = decodeAction.optLong("groupid");
+                pluginMsg.uin = decodeAction.optLong("person");
+                center.sendMsg(pluginMsg);
+            }
             if (action.equals("log")) {
                 center.sendLog(AbstractMessageCenter.LoggerLevel.Server, decodeAction.getMsg());
             }

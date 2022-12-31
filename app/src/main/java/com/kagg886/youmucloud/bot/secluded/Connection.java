@@ -7,6 +7,7 @@ import com.kagg886.youmucloud.bot.Action;
 import com.kagg886.youmucloud.bot.BotConnection;
 import kagg886.qinternet.Message.MsgCollection;
 import mcsq.nxa.secluded.msg.Messenger;
+import mcsq.nxa.secluded.msg.Msg;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -45,6 +46,14 @@ public class Connection extends BotConnection<Messenger,Messenger.Builder> {
                     messenger.addMsg("GroupId", decodeAction.optLong("groupid"));
                     messenger.addMsg("Uin", decodeAction.optLong("person"));
                     messenger.addMsg("Time", decodeAction.optInt("time"));
+                });
+            }
+
+            if (action.equals("memberKick")) {
+                center.sendMsg(messenger -> {
+                    messenger.addMsg(Msg.GroupMemberSignout);//踢人flag
+                    messenger.addMsg(Msg.GroupId, decodeAction.optLong("groupid"));
+                    messenger.addMsg(Msg.Uin, decodeAction.optLong("person"));
                 });
             }
 

@@ -9,8 +9,8 @@ android {
         applicationId "com.kagg886.youmucloud"
         minSdk 21
         targetSdk 32
-        versionCode 20221112
-        versionName "4.3"
+        versionCode 20221207
+        versionName "4.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
