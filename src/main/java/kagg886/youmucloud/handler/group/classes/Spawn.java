@@ -12,7 +12,6 @@ import kagg886.youmucloud.util.Utils;
 import kagg886.youmucloud.util.bull.BullshitGenerator;
 import kagg886.youmucloud.util.sudo.SudokuChecker;
 import kagg886.youmucloud.util.sudo.SudokuFactory;
-import net.coobird.thumbnailator.Thumbnails;
 import org.json.JSONArray;
 import org.jsoup.Jsoup;
 
@@ -216,7 +215,6 @@ public class Spawn extends GroupMsgHandle {
 
                 BufferedImage image = ImageIO.read(Jsoup.connect("https://q1.qlogo.cn/g?b=qq&nk=" + targets.get(0) + "&s=640").ignoreContentType(true).execute().bodyStream());
                 image = ImageUtil.SquareToCircle(image);
-                image = Thumbnails.of(image).scale(1.0).outputQuality(1.0).rotate(Utils.random.nextInt(360)).asBufferedImage();
                 BufferedImage bkg = ImageIO.read(new File(Statics.data_dir + "/res/spawn/throw.png"));
                 Graphics g = bkg.getGraphics();
                 g.drawImage(image,19, 181, 137, 137, null);

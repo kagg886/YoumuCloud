@@ -47,6 +47,21 @@ public class Akinator extends GroupMsgHandle {
                 if (choice < 0 || choice > 4) {
                     throw new Exception();
                 }
+
+                for (Map.Entry<Long, Long> group : groupLock.entrySet()) {
+                    if (group.getValue().equals(pack.getMember().getUin())) { //如果此人正在游玩Akinator
+                        for (Map.Entry<Long, Long> member : groupLock.entrySet()) {
+                            if (member.getKey().equals(pack.getMember().getUin())) {//如果此人发送信息的群正在玩Akinator
+                                sendMsg(pack, "此群正在游戏xxx\n建议换一个群捏");
+                                return;
+                            }
+                        }
+                        groupLock.remove(group.getKey()); //更新这个玩家的状态
+                        groupLock.put(pack.getGroup().getId(), pack.getMember().getUin());
+                        break;
+                    }
+                }
+
                 WaitService.addCall(qq + "_aki", String.valueOf(choice));
                 sendMsg(pack, "选择成功!", "你的选择为:" + choice);
             } catch (Exception e) {
@@ -54,15 +69,18 @@ public class Akinator extends GroupMsgHandle {
             }
         }
 
-        if (text.equals(".gm akinator stop")) {
+        if (text.equals(".gm akinator stop")) { //若此人是游戏者，此命令强行停止游戏。若此人非游戏者，则会停止此群的游戏
             if (akiWrappers.getOrDefault(pack.getMember().getUin(), null) != null) {
                 sendMsg(pack, "已强行停止游戏");
-
                 akiWrappers.remove(pack.getMember().getUin());
                 WaitService.addCall(pack.getMember().getUin() + "_aki", "null");
-                for (Map.Entry<Long, Long> entry : groupLock.entrySet()) {
-
+                for (Map.Entry<Long, Long> entry : groupLock.entrySet()) { //删除群唯一游戏锁
+                    if (entry.getValue() == pack.getMember().getUin()) {
+                        groupLock.remove(entry.getKey());
+                        break;
+                    }
                 }
+                groupLock.remove(pack.getGroup().getId());
                 return;
             } else {
                 sendMsg(pack, "未找到游戏开始的实例");
@@ -70,7 +88,12 @@ public class Akinator extends GroupMsgHandle {
         }
         if (text.equals(".gm akinator start")) {
             if (akiWrappers.getOrDefault(pack.getMember().getUin(), null) == null) {
+                if (groupLock.containsKey(pack.getGroup().getId())) {
+                    sendMsg(pack, "本群正在游戏中...\n请换一个群呜呜呜x");
+                    return;
+                }
                 akiWrappers.put(pack.getMember().getUin(), builder.build());
+                groupLock.put(pack.getGroup().getId(), pack.getMember().getUin());
                 sendMsg(pack, "创建游戏成功，等待服务器响应ing...");
             } else {
                 sendMsg(pack, "请勿重复开始游戏!");
@@ -88,6 +111,7 @@ public class Akinator extends GroupMsgHandle {
                     if (ans == null) {
                         sendMsg(pack, "超时，游戏自动关闭!");
                         akiWrappers.remove(pack.getMember().getUin());
+                        groupLock.remove(pack.getGroup().getId());
                         return;
                     }
 
@@ -131,6 +155,7 @@ public class Akinator extends GroupMsgHandle {
                         collection.putText(guess.getDescription());
                         collection.putText("\n游戏结束，玩的愉快>_<");
                         akiWrappers.remove(pack.getMember().getUin());
+                        groupLock.remove(pack.getGroup().getId()); //移除群锁
                         pack.getGroup().sendMsg(collection);
                         return;
                     }

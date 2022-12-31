@@ -1,14 +1,16 @@
 package kagg886.youmucloud.handler.group.classes;
 
+import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtSession;
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
 import kagg886.youmucloud.handler.group.GroupMsgHandle;
-import kagg886.youmucloud.util.Mail;
-import kagg886.youmucloud.util.PixivUtil;
-import kagg886.youmucloud.util.ScoreUtil;
-import kagg886.youmucloud.util.Utils;
+import kagg886.youmucloud.util.*;
 import kagg886.youmucloud.util.cache.JSONArrayStorage;
+import kagg886.youmucloud.util.sort.SortItem;
+import kagg886.youmucloud.util.sort.UpSorter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Connection;
@@ -16,21 +18,27 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 public class hso extends GroupMsgHandle {
 
     private static final String saucenaoApikey = "7c949b57a221cb9c8e8fd5fe9055952193f58dcf";
     public static JSONArrayStorage imgs;
 
-    //private OrtSession session;
+    private OrtSession session;
 
 
     public hso() {
         try {
             imgs = JSONArrayStorage.obtain("res/setu.json");
-            //this.session = OrtEnvironment.getEnvironment().createSession( Statics.data_dir + "/res/model.onnx");
+            this.session = OrtEnvironment.getEnvironment().createSession(Statics.data_dir + "/res/model.onnx");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -40,69 +48,69 @@ public class hso extends GroupMsgHandle {
     public void handle(final GroupMsgPack pack) throws Exception {
         String text = pack.getMessage().getTexts();
 
-//		if (text.startsWith(".hso detect")) {
-//			ArrayList<String> img = Utils.getImage(pack);
-//			if (img.size() == 0) {
-//				this.sendMsg(pack, "请发送图片!");
-//				return;
-//			}
-//
-//			if (ScoreUtil.checkCoin(this,pack,5)) {
-//				return;
-//			}
-//
-//			BufferedImage outside = ImageIO.read(Jsoup.connect(img.get(0)).ignoreContentType(true).execute().bodyStream());
-//			HashMap<String, OnnxTensor> map = new HashMap();
-//			OnnxTensor t = OnnxTensor.createTensor(OrtEnvironment.getEnvironment(), ImageUtil.imageToMatrix(ImageUtil.scaleImg(outside, 256, 256)));
-//			map.put("inputs", t);
-//			OrtSession.Result Result = this.session.run(map);
-//			float[][] outputProbs = (float[][])Result.get(0).getValue();
-//			float[] probabilities = outputProbs[0];
-//			float maxVal = Float.NEGATIVE_INFINITY;
-//			String[] label = new String[]{"drawings", "hentai", "neutral", "porn", "sexy"};
-//
-//			int j;
-//			for(int i = 0; i < probabilities.length; ++i) {
-//				if (probabilities[i] > maxVal) {
-//					maxVal = probabilities[i];
-//				}
-//
-//				for(j = 0; j < probabilities.length - 1 - i; ++j) {
-//					if (probabilities[j] > probabilities[j + 1]) {
-//						float proTemp = probabilities[j];
-//						probabilities[j] = probabilities[j + 1];
-//						probabilities[j + 1] = proTemp;
-//						String labelTemp = label[j];
-//						label[j] = label[j + 1];
-//						label[j + 1] = labelTemp;
-//					}
-//				}
-//			}
-//
-//			List<SortItem> result = new ArrayList();
-//
-//			for(j = 0; j < 5; ++j) {
-//				SortItem si = new SortItem();
-//				si.qqs.add(label[j]);
-//				si.value = (int)(probabilities[j] * 100.0F);
-//				result.add(si);
-//			}
-//
-//			result.sort(UpSorter.INSTANCE);
-//			t.close();
-//			MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), new String[]{"涩图检测结果如下:"});
-//			Iterator var56 = result.iterator();
-//
-//			while(var56.hasNext()) {
-//				SortItem s = (SortItem)var56.next();
-//				col.putText("\n");
-//				col.putText(s.qqs.get(0));
-//				col.putText("的分数:");
-//				col.putText(String.valueOf(s.value));
-//			}
-//
-//			pack.getGroup().sendMsg(col);
-//		}
+        if (text.startsWith(".hso detect")) {
+            ArrayList<String> img = Utils.getImage(pack);
+            if (img.size() == 0) {
+                this.sendMsg(pack, "请发送图片!");
+                return;
+            }
+
+            if (ScoreUtil.checkCoin(this, pack, 5)) {
+                return;
+            }
+
+            BufferedImage outside = ImageIO.read(Jsoup.connect(img.get(0)).ignoreContentType(true).execute().bodyStream());
+            HashMap<String, OnnxTensor> map = new HashMap();
+            OnnxTensor t = OnnxTensor.createTensor(OrtEnvironment.getEnvironment(), ImageUtil.imageToMatrix(ImageUtil.scaleImg(outside, 256, 256)));
+            map.put("inputs", t);
+            OrtSession.Result Result = this.session.run(map);
+            float[][] outputProbs = (float[][]) Result.get(0).getValue();
+            float[] probabilities = outputProbs[0];
+            float maxVal = Float.NEGATIVE_INFINITY;
+            String[] label = new String[]{"drawings", "hentai", "neutral", "porn", "sexy"};
+
+            int j;
+            for (int i = 0; i < probabilities.length; ++i) {
+                if (probabilities[i] > maxVal) {
+                    maxVal = probabilities[i];
+                }
+
+                for (j = 0; j < probabilities.length - 1 - i; ++j) {
+                    if (probabilities[j] > probabilities[j + 1]) {
+                        float proTemp = probabilities[j];
+                        probabilities[j] = probabilities[j + 1];
+                        probabilities[j + 1] = proTemp;
+                        String labelTemp = label[j];
+                        label[j] = label[j + 1];
+                        label[j + 1] = labelTemp;
+                    }
+                }
+            }
+
+            List<SortItem> result = new ArrayList();
+
+            for (j = 0; j < 5; ++j) {
+                SortItem si = new SortItem();
+                si.qqs.add(label[j]);
+                si.value = (int) (probabilities[j] * 100.0F);
+                result.add(si);
+            }
+
+            result.sort(UpSorter.INSTANCE);
+            t.close();
+            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), "涩图检测结果如下:");
+            Iterator var56 = result.iterator();
+
+            while (var56.hasNext()) {
+                SortItem s = (SortItem) var56.next();
+                col.putText("\n");
+                col.putText(s.qqs.get(0));
+                col.putText("的分数:");
+                col.putText(String.valueOf(s.value));
+            }
+
+            pack.getGroup().sendMsg(col);
+        }
 
         if (text.startsWith(".hso pixiv down")) {
             String[] var = text.split(" ");

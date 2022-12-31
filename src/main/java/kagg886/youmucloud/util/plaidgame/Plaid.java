@@ -14,15 +14,15 @@ public class Plaid {
         this.y = y;
         this.margin = marginLength;
 
-        image = new BufferedImage(marginLength * x + 1,marginLength * y + 1,BufferedImage.TYPE_INT_RGB);
+        image = new BufferedImage(marginLength * x + 1, marginLength * y + 1, BufferedImage.TYPE_INT_RGB);
 
         Graphics2D g2d = image.createGraphics();
-        for (int xindex = 0; xindex < image.getWidth(); xindex+= marginLength) {
-            for (int yindex = 0; yindex < image.getHeight(); yindex+= marginLength) {
+        for (int xIndex = 0; xIndex < image.getWidth(); xIndex += marginLength) {
+            for (int yIndex = 0; yIndex < image.getHeight(); yIndex += marginLength) {
                 g2d.setColor(background);
-                g2d.fillRect(xindex,yindex,marginLength + 3,marginLength + 3);
+                g2d.fillRect(xIndex, yIndex, marginLength + 3, marginLength + 3);
                 g2d.setColor(Color.BLACK);
-                g2d.drawRect(xindex,yindex,marginLength,marginLength);
+                g2d.drawRect(xIndex, yIndex, marginLength, marginLength);
             }
         }
         g2d.dispose();

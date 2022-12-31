@@ -18,7 +18,6 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @projectName: YoumuServer
@@ -87,14 +86,11 @@ public class Client {
         String header = (String) config.getUserProperties().get("header");
         headers = new JSONObject(header);
 
-        List<QQBot> b = QInternet.getList();
-        synchronized (b) {
-            for (QQBot bot : b) {
-                if (bot.getId() == name) {
-                    QInternet.removeBot(bot);
-                    //((YoumuUser) bot).getClient().session.close();
-                    Utils.log("系统提示", name + "在连接时已经拥有实例，已清除该实例");
-                }
+        for (QQBot bot : QInternet.getList()) {
+            if (bot.getId() == name) {
+                QInternet.removeBot(bot);
+                //((YoumuUser) bot).getClient().session.close();
+                Utils.log("系统提示", name + "在连接时已经拥有实例，已清除该实例");
             }
         }
 

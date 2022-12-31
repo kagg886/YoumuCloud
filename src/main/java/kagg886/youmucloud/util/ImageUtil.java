@@ -1,29 +1,25 @@
 package kagg886.youmucloud.util;
 
-import net.coobird.thumbnailator.Thumbnails;
-
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
 public class ImageUtil {
 
     public static BufferedImage compress(BufferedImage source) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Thumbnails.of(source)
-                .scale(0.6f)
-                .outputQuality(0.5f)
-                .outputFormat("PNG")
-                .toOutputStream(out);
-        return ImageIO.read(new ByteArrayInputStream(out.toByteArray()));
+        int newWidth = (int) Math.ceil(source.getWidth() * 0.6), newHeight = (int) Math.ceil(source.getHeight() * 0.6);
+        return scaleImg(source, newWidth, newHeight);
     }
 
     public static BufferedImage scaleImg(BufferedImage image, int width, int height) throws IOException {
-        return Thumbnails.of(image).scale(width,height).asBufferedImage();
+        BufferedImage buf = new BufferedImage(width, height, image.getType());
+        Graphics2D g2d = buf.createGraphics();
+        g2d.drawImage(image, 0, 0, width, height, null);
+        g2d.dispose();
+        return buf;
     }
 
     public static float[][][][] imageToMatrix(BufferedImage image) {

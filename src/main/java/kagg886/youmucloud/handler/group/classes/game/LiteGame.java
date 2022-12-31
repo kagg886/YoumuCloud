@@ -72,6 +72,12 @@ public class LiteGame extends GroupMsgHandle {
         }
 
         if (text.startsWith(".gm wife")) {
+            for (GroupMsgPack pack1 : packs) {
+                if (pack1.getMember().getUin() == pack.getMember().getUin()) {
+                    sendMsg(pack, "请耐心等待自己的只因");
+                    return;
+                }
+            }
             sendMsg(pack, "已插入队列!\n当有另一个人使用此指令时bot将会通知你");
             packs.offer(pack);
         }
@@ -107,6 +113,29 @@ public class LiteGame extends GroupMsgHandle {
                         break;
                 }
             }
+
+            int lucky = Utils.random.nextInt(100);
+            if (lucky == 1) {
+                score -= 30;
+                c.putText("\n[突发事件]:你被1up撅了，积分-30");
+            } else if (lucky == 2) {
+                score += 30;
+                c.putText("\n[突发事件]:你把1up撅了，积分+30");
+            } else if (lucky == 3) {
+                score = 0;
+                c.putText("\n[突发事件]:你开出的碟跑了，本次积分清0");
+            } else if (lucky == 4) {
+                c.putText("\n[突发事件]:你碟开错了，然而你靠着你的无敌底力躲过去了");
+            } else if (lucky == 5) {
+                score -= 15;
+                c.putText("\n[突发事件]:你一不小心撞到飞碟了，积分-15");
+            } else if (lucky == 6) {
+                score += 15;
+                c.putText("\n[突发事件]:你开的碟炸了，积分+15");
+            } else if (lucky == 7) {
+                c.putText("[突发事件]:你获得了114514点积分，可惜是假的");
+            }
+
             //避免无用IO
             if (score != 0) {
                 ScoreStatis.exps.put(String.valueOf(qq), ScoreStatis.exps.optInt(String.valueOf(qq)) + score);
@@ -127,11 +156,6 @@ public class LiteGame extends GroupMsgHandle {
                     }
                 } catch (Exception ignored) {
                 }
-            }
-
-            if (ScoreStatis.exps.optInt(String.valueOf(qq)) > 2000) {
-                sendMsg(pack, "[防内卷小贴士]:检测到您的积分数大于2000,已自动关闭游戏!");
-                return;
             }
             Utils.service.submit(new GameRunnable() {
 
@@ -172,8 +196,11 @@ public class LiteGame extends GroupMsgHandle {
                         result[1] = Integer.parseInt(call.split(",")[1]);
 
                         if (result[0] == color.getAnswers()[0] && result[1] == color.getAnswers()[1]) {
-                            int add = (int) (1 / (0.0833333333333 + Math.pow(Math.E, -0.0699301512293 * rank - 1.38629436112)));
                             int score = ScoreStatis.exps.optInt(String.valueOf(qq));
+                            int add = (int) (1 / (0.0833333333333 + Math.pow(Math.E, -0.0699301512293 * rank - 1.38629436112)));
+                            if (add > 2000) {
+                                add = 0;
+                            }
                             score += add;
                             try {
                                 ScoreStatis.exps.put(String.valueOf(qq), score);
@@ -183,11 +210,6 @@ public class LiteGame extends GroupMsgHandle {
 
                             //胜利,进入下一局
                             sendMsg(pack, "答案正确~\n", "奖励" + add + "积分\n请稍等片刻...");
-
-                            if (score > 2000) {
-                                sendMsg(pack, "[防内卷小贴士]:检测到您的积分数大于2000,已自动关闭游戏!");
-                                break;
-                            }
                             continue;
                         }
                         sendMsg(pack, "肥肠抱歉,您猜错了~\n", "正确答案应为:", color.getAnswers()[0] + "," + color.getAnswers()[1], "\n本局游戏结束!您坚持了", round + "轮");

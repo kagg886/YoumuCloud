@@ -1,9 +1,9 @@
 package kagg886.youmucloud.servlet.spawn;
 
+import kagg886.youmucloud.util.ImageUtil;
 import kagg886.youmucloud.util.Statics;
 import kagg886.youmucloud.util.Utils;
 import kagg886.youmucloud.util.gif.AnimatedGifEncoder;
-import net.coobird.thumbnailator.Thumbnails;
 import org.jsoup.Jsoup;
 
 import javax.imageio.ImageIO;
@@ -38,7 +38,7 @@ public class Garbage extends HttpServlet {
     public static String spawn(String url) throws IOException {
         int rd = Utils.random.nextInt();
         BufferedImage qLogo = ImageIO.read(Jsoup.connect(url).ignoreContentType(true).execute().bodyStream());
-        qLogo = Thumbnails.of(qLogo).width(79).height(79).asBufferedImage();
+        qLogo = ImageUtil.scaleImg(qLogo, 79, 79);
 
         AnimatedGifEncoder encoder = new AnimatedGifEncoder();
         encoder.setDelay(100);
