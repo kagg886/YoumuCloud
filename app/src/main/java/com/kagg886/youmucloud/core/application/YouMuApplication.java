@@ -25,9 +25,8 @@ public class YouMuApplication extends Application implements Runnable, Thread.Un
         super.onCreate();
         //初始化版本信息
         try {
-            Constant.VERSION = getPackageManager().getPackageInfo(Constant.PKG_NAME,0);
+            Constant.VERSION = getPackageManager().getPackageInfo(this.getPackageName(),0);
         } catch (Exception ignored) {}
-
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("logCrash",true)) {
             Thread.setDefaultUncaughtExceptionHandler(this);
             new Handler(Looper.getMainLooper()).post(this);
@@ -66,6 +65,9 @@ public class YouMuApplication extends Application implements Runnable, Thread.Un
             }
             fileWriter.append("\n---StackTrace---\n");
             fileWriter.append(ExceptionUtil.appendStack(th));
+            fileWriter.append("\n---Setting---\n");
+            fileWriter.append("isOriginalPkgName:");
+            fileWriter.append(String.valueOf(Constant.isOriginalPkg(this)));
             fileWriter.flush();
             fileWriter.close();
             Process.killProcess(Process.myPid());

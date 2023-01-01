@@ -15,6 +15,7 @@ import com.kagg886.youmucloud.bot.BotConnection;
 import com.kagg886.youmucloud.bot.SessionBot;
 import com.kagg886.youmucloud.bot.secluded.SecludedMessageCenter;
 import com.kagg886.youmucloud.util.Constant;
+import com.kagg886.youmucloud.util.DynamicNotification;
 import kagg886.qinternet.Content.Group;
 import kagg886.qinternet.Content.Member;
 import kagg886.qinternet.Content.Person;
@@ -31,11 +32,33 @@ public class PluginService extends Service {
 
     public static PluginService INSTANCE;
 
+    private DynamicNotification notification;
+    private int receive;
+
+
+    @Override
+    public void onCreate() {
+        INSTANCE = this;
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("keepAlive",true)) {
+            notification = new DynamicNotification(this, DynamicNotification.Platform.QRSpeed);
+            startForeground(notification.getPlatform().getId(), notification.build("YoumuCloud已运行\n平台:QRSpeed"));
+        }
+    }
+
     //AIDL接口实现
     private final Stub stub = new Stub() {
         @Override
         public void onMessageHandler(PluginMsg msg) throws RemoteException {
 
+            if (notification != null) {
+                receive++;
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        notification.show("YoumuCloud已运行\n已接收" + receive + "条消息");
+                    }
+                });
+            }
             if (msg.type == PluginMsg.TYPE_GROUP_MSG) {
                 for (QQBot a : QInternet.getList()) {
                     SessionBot c = (SessionBot) a;
@@ -99,7 +122,7 @@ public class PluginService extends Service {
         }
         bindService(i, connection, Context.BIND_AUTO_CREATE);
         try {
-            Constant.VERSION = getPackageManager().getPackageInfo(Constant.PKG_NAME,0);
+            Constant.VERSION = getPackageManager().getPackageInfo(this.getPackageName(),0);
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -156,12 +179,6 @@ public class PluginService extends Service {
             }
         }
         return super.onUnbind(intent);
-    }
-
-    @Override
-    public void onCreate() {
-        INSTANCE = this;
-
     }
 }
 

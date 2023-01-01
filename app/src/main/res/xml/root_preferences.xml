@@ -36,16 +36,22 @@
                 app:summary="用于设置插件连接的妖梦云bot服务器地址"
                 app:defaultValue="youmucloud.kagg886.top"/>
 
+        <SwitchPreferenceCompat
+                app:defaultValue="true"
+                app:key="keepAlive"
+                app:summary="不支持SQVZ"
+                app:title="启用常驻通知栏保活"/>
+
 
         <!--                app:defaultValue="ws://youmucloud.kagg886.top/youmu/api/"-->
 
 
         <!--        <SwitchPreferenceCompat-->
-<!--                app:defaultValue="false"-->
-<!--                app:key="simpleUpload"-->
-<!--                app:summaryOn="插件不会上传一部分消息包，这可能会导致某些功能失效"-->
-<!--                app:summaryOff="插件会上传所有消息包，这可能会增加服务器运行负担"-->
-<!--                app:title="过滤消息包"/>-->
+        <!--                app:defaultValue="false"-->
+        <!--                app:key="simpleUpload"-->
+        <!--                app:summaryOn="插件不会上传一部分消息包，这可能会导致某些功能失效"-->
+        <!--                app:summaryOff="插件会上传所有消息包，这可能会增加服务器运行负担"-->
+        <!--                app:title="过滤消息包"/>-->
 
     </PreferenceCategory>
 
@@ -71,9 +77,9 @@
                 app:summary="点击后会快速重启"/>
 
         <DropDownPreference
-            app:key="reset"
-            app:title="重置设置"
-            app:summary="点击后插件会重置所有设置,慎入"/>
+                app:key="reset"
+                app:title="重置设置"
+                app:summary="点击后插件会重置所有设置,慎入"/>
 
     </PreferenceCategory>
 

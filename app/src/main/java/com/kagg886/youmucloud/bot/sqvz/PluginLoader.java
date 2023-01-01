@@ -1,12 +1,16 @@
 package com.kagg886.youmucloud.bot.sqvz;
 
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.util.Log;
 import androidx.preference.PreferenceManager;
 import com.kagg886.youmucloud.R;
 import com.kagg886.youmucloud.bot.AbstractMessageCenter;
@@ -15,6 +19,7 @@ import com.kagg886.youmucloud.bot.BotConnection;
 import com.kagg886.youmucloud.bot.SessionBot;
 import com.kagg886.youmucloud.core.activity.MainActivity;
 import com.kagg886.youmucloud.util.Constant;
+import com.kagg886.youmucloud.util.DynamicNotification;
 import com.setqq.script.Msg;
 import com.setqq.script.sdk.IPlugin;
 import com.setqq.script.sdk.PluginApiInterface;
@@ -63,7 +68,7 @@ public class PluginLoader implements IPlugin {
                 }
             }
             try {
-                Constant.VERSION = context.getPackageManager().getPackageInfo(Constant.PKG_NAME, 0);
+                Constant.VERSION = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             } catch (PackageManager.NameNotFoundException e) {
                 throw new RuntimeException(e);
             }

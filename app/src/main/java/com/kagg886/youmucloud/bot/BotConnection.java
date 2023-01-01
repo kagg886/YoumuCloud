@@ -36,13 +36,13 @@ public abstract class BotConnection<K,V> extends WebSocketClient {
         return qid;
     }
 
-    public static <M,N> void init(BotConnection conn, SharedPreferences sp) {
+    public static <M,N> void init(BotConnection<M,N> conn, SharedPreferences sp) {
 
         //填充Header
         JSONObject jSONObject = new JSONObject();
         if (sp.getBoolean("enableHeader",true)) {
             try {
-                JSONObjectStorage tmp = JSONObjectStorage.obtain("sdcard/Android/data/" + Constant.PKG_NAME + "/files/config/headers.json");
+                JSONObjectStorage tmp = JSONObjectStorage.obtain("sdcard/Android/data/" + Constant.VERSION.applicationInfo.packageName + "/files/config/headers.json");
                 String key;
                 for (Iterator<String> iterator = tmp.keys(); iterator.hasNext(); ) {
                     key = iterator.next();

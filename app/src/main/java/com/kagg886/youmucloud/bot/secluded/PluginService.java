@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import androidx.preference.PreferenceManager;
 import com.kagg886.youmucloud.R;
@@ -14,6 +16,7 @@ import com.kagg886.youmucloud.bot.BotConnection;
 import com.kagg886.youmucloud.bot.SessionBot;
 import com.kagg886.youmucloud.core.activity.MainActivity;
 import com.kagg886.youmucloud.util.Constant;
+import com.kagg886.youmucloud.util.DynamicNotification;
 import kagg886.qinternet.Content.Group;
 import kagg886.qinternet.Content.Member;
 import kagg886.qinternet.Content.Person;
@@ -28,6 +31,24 @@ import mcsq.nxa.secluded.plugin.PluginBinderHandler;
 
 public class PluginService extends PluginBinder implements PluginBinderHandler {
     public static PluginService INSTANCE;
+
+    private DynamicNotification notification;
+
+    private int receive;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        try {
+            Constant.VERSION = getPackageManager().getPackageInfo(this.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("keepAlive",true)) {
+            notification = new DynamicNotification(this, DynamicNotification.Platform.Secluded);
+            startForeground(notification.getPlatform().getId(), notification.build("YoumuCloud已运行\n平台:Secluded"));
+        }
+    }
 
     @Override
     public IBinder onBind(Intent i) {
@@ -52,6 +73,15 @@ public class PluginService extends PluginBinder implements PluginBinderHandler {
 
     @Override
     public void onMsgHandler(final Messenger msg) throws RemoteException {//消息处理 子线程
+        if (notification != null) {
+            receive++;
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    notification.show("YoumuCloud已运行\n已接收" + receive + "条消息");
+                }
+            });
+        }
         long bot = msg.getLong(Msg.Account);
         if (QInternet.findBot(bot) == null) {
             Connection conn = new Connection(bot, SecludedMessageCenter.INSTANCE, PreferenceManager.getDefaultSharedPreferences(this));
@@ -115,15 +145,5 @@ public class PluginService extends PluginBinder implements PluginBinderHandler {
     @Override
     public String activity() throws RemoteException {//插件跳转
         return MainActivity.class.getName();
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        try {
-            Constant.VERSION = getPackageManager().getPackageInfo(Constant.PKG_NAME, 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

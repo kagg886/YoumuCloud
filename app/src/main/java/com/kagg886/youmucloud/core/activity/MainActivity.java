@@ -2,6 +2,7 @@ package com.kagg886.youmucloud.core.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -11,7 +12,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,7 +54,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements IOUtil.Response, EasyPermissions.PermissionCallbacks, View.OnKeyListener {
+public class MainActivity extends AppCompatActivity implements IOUtil.Response, EasyPermissions.PermissionCallbacks, View.OnKeyListener, DialogInterface.OnClickListener {
 
     private ActivityMainBinding binding;
 
@@ -72,10 +72,6 @@ public class MainActivity extends AppCompatActivity implements IOUtil.Response, 
         return layout;
     }
 
-    public LinearLayout getRoot() {
-        return root;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,13 +83,6 @@ public class MainActivity extends AppCompatActivity implements IOUtil.Response, 
 
         //检查权限
         checkPermissions();
-
-        //临时代码，将在未来删除
-        SharedPreferences pf = PreferenceManager.getDefaultSharedPreferences(this);
-        if (pf.getBoolean("launchAs4_3",true)) {
-            pf.edit().putString("server","youmucloud.kagg886.top").putBoolean("launchAs4_3",false).apply();
-        }
-
 
         //检查更新
         IOUtil.asyncHttp(this, Jsoup.connect("http://" + ContextUtil.getServerAddress(this) + "/youmu/text?path=update").ignoreContentType(true), this);
@@ -115,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements IOUtil.Response, 
         view.setOnKeyListener(this);
         view.loadUrl("http://" + ContextUtil.getServerAddress(this) + "/youmu/HomePage");
 
-        webDialog = new AlertDialog.Builder(this).setView(view).setPositiveButton("确定", null).show();
+        webDialog = new AlertDialog.Builder(this).setView(view).setPositiveButton("确定", this).show();
     }
 
     private void checkPermissions() {
@@ -176,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements IOUtil.Response, 
     }
 
 
-    //一些工具类
+    //一些工具方法
 
     public void snack(String txt) {
         Snackbar.make(root, txt, Snackbar.LENGTH_LONG).show();
@@ -184,10 +173,11 @@ public class MainActivity extends AppCompatActivity implements IOUtil.Response, 
 
     //更新检查方法
     @Override
+    @SuppressLint("DefaultLocale")
     public void onSuccess(byte[] byt) throws Exception {
         JSONObject latestInfo = new JSONObject(new String(byt));
         long latestVer = latestInfo.optLong("latestVersionCode");
-        long latestCode = 0;
+        long latestCode;
         if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
             latestCode = Constant.VERSION.getLongVersionCode();
         } else {
@@ -196,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements IOUtil.Response, 
         if (latestVer != latestCode) {
             View v = LayoutInflater.from(this).inflate(R.layout.dialog_update, null);
             ((TextView) v.findViewById(R.id.dialog_update_info)).setText(latestInfo.optString("updateDesc"));
-            AlertDialog dialog = new AlertDialog.Builder(this)
+             AlertDialog dialog = new AlertDialog.Builder(this)
                     .setTitle(String.format("发现新版本:%d", latestVer)).
                     setView(v).setCancelable(false).create();
             Button cancel = v.findViewById(R.id.dialog_update_cancel);
@@ -291,5 +281,18 @@ public class MainActivity extends AppCompatActivity implements IOUtil.Response, 
             }
         }
         return true;
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        //检测是否为共存版
+        if (!Constant.isOriginalPkg(this)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("警告");
+            builder.setIcon(R.drawable.ic_warning);
+            builder.setMessage("您正在使用共存版YoumuCloud\n因为Secluded客户端只允许一个插件绑定一个bot，所以我没加签名校验那些乱七八糟的东西\n请不要修改我的程序(除包名外)，尤其是协议通信部分。");
+            builder.setPositiveButton("知道了",null);
+            builder.create().show();
+        }
     }
 }
