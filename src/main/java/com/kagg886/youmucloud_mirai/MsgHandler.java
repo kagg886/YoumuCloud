@@ -7,12 +7,15 @@ import com.kagg886.youmucloud_mirai.websocket.MessageCenter;
 import kagg886.qinternet.Content.Group;
 import kagg886.qinternet.Content.Member;
 import kagg886.qinternet.Content.Person;
+import kagg886.qinternet.Content.QQBot;
 import kagg886.qinternet.Message.GroupMemberPack;
 import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.QInternet;
 import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.contact.Stranger;
+import net.mamoe.mirai.contact.announcement.Announcement;
+import net.mamoe.mirai.contact.announcement.AnnouncementParameters;
 import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.ListenerHost;
 import net.mamoe.mirai.event.events.BotOfflineEvent;
@@ -21,6 +24,7 @@ import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MemberJoinEvent;
 import org.java_websocket.WebSocket;
 import org.java_websocket.enums.ReadyState;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -65,7 +69,6 @@ public class MsgHandler implements ListenerHost {
             initServer(event.getBot().getId());
             return;
         }
-
         if (bot.getConnection().getReadyState() != ReadyState.OPEN) {
             QInternet.removeBot(bot);
             MessageCenter.sendLog(MessageCenter.Logger.Client, event.getBot().getId() + "检测到未连接的bot，尝试重连ing...");
@@ -110,6 +113,12 @@ public class MsgHandler implements ListenerHost {
         server.connect();
         int a = 0;
         while (server.getReadyState() != ReadyState.OPEN && a < 30) {
+            for (QQBot p : QInternet.getList()) {
+                SessionBot bot = (SessionBot) p;
+                if (bot.getConnection().getReadyState() == ReadyState.OPEN && bot.getId() == id) {
+                    return;
+                }
+            }
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ignored) {}
