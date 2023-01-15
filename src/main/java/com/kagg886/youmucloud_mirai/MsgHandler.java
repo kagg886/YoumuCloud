@@ -22,6 +22,7 @@ import net.mamoe.mirai.event.events.BotOfflineEvent;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MemberJoinEvent;
+import net.mamoe.mirai.message.data.Image;
 import org.java_websocket.WebSocket;
 import org.java_websocket.enums.ReadyState;
 import org.jetbrains.annotations.NotNull;

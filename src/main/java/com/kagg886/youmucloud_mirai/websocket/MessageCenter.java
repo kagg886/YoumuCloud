@@ -73,6 +73,8 @@ public class MessageCenter {
             p.putAt(at.getTarget());
         });
 
+
+
         c.stream().filter(Image.class::isInstance).forEach(t -> {
             Image i = (Image) t;
             String url = "http://gchat.qpic.cn/gchatpic_new/0/0-0-" + i.getImageId().split("\\.")[0].replace("{","").replace("}","").replace("-","") + "/0?term=2";
