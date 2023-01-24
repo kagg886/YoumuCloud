@@ -81,7 +81,7 @@ public class Client {
     }
 
     @OnOpen
-    public void onOpen(@PathParam("username") String username, Session session, EndpointConfig config) throws Exception {
+    public synchronized void onOpen(@PathParam("username") String username, Session session, EndpointConfig config) throws Exception {
         long name = Long.parseLong(username);
         String header = (String) config.getUserProperties().get("header");
         headers = new JSONObject(header);
@@ -93,8 +93,6 @@ public class Client {
                 Utils.log("系统提示", name + "在连接时已经拥有实例，已清除该实例");
             }
         }
-
-
         boot = new YoumuUser(name, this);
         this.session = session;
         QInternet.addBot(boot);
@@ -111,12 +109,11 @@ public class Client {
 
     @OnError
     public void onError(Session session, Throwable throwable) {
-
         Utils.log("系统提示", "程序出错");
-        throwable.printStackTrace();
         if (throwable.getMessage() == null) {
             return;
         }
+        throwable.printStackTrace();
         if (throwable.getMessage().contains("Connection reset by peer") || throwable.getMessage().contains("Broken pipe") || throwable.getMessage().contains("Connection timed out")) {
             for (QQBot bot : QInternet.getList()) {
                 SessionGroupAPI api = (SessionGroupAPI) bot.getGroupAPI();

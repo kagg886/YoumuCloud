@@ -1,5 +1,6 @@
 package kagg886.youmucloud.util.sort;
 
+import kagg886.youmucloud.util.Utils;
 import kagg886.youmucloud.util.cache.JSONObjectStorage;
 
 import java.util.ArrayList;
@@ -52,9 +53,11 @@ public class Sorter extends ArrayList<SortItem> {
             buf.append("\n");
             buf.append("No.");
             buf.append(value);
-            buf.append(":");
-            buf.append(st.qqs.toString());
-            buf.append("---");
+            buf.append(":[");
+            for (String a : st.qqs) {
+                buf.append(Utils.mosaicString(a, 3));
+            }
+            buf.append("]---");
             buf.append(st.value);
             value++;
         }

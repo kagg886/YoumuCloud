@@ -26,6 +26,18 @@ public class Utils {
     public static Random random = new Random();
 
 
+    public static String mosaicString(String a, int p) {
+        String a1 = a.substring(0, p);
+        String a2 = a.substring(a.length() - p, a.length());
+        StringBuilder builder = new StringBuilder(a1);
+        for (int i = 0; i < a.length() - 2 * p; i++) {
+            builder.append("*");
+        }
+        builder.append(a2);
+        return builder.toString();
+    }
+
+
     public static String randomStr(int length) {
         StringBuilder b = new StringBuilder();
         while (length != 0) {

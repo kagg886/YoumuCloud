@@ -246,7 +246,8 @@ public class BiliBili extends GroupMsgHandle {
                 collection.putImage(link);
             }
 
-            pack.getGroup().sendMsg(collection);
+            Mail.sendMessage(pack.getMember().getUin() + "@qq.com", "b站专栏图片解析", collection);
+            sendMsg(pack, "专栏图片已发送至QQ邮箱中，请查收");
         }
 
         if (text.startsWith(".bli videoformat")) {

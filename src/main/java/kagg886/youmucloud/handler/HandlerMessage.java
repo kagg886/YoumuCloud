@@ -14,9 +14,13 @@ import kagg886.youmucloud.handler.memberevent.classes.Welcome;
 import kagg886.youmucloud.util.MsgIterator;
 import kagg886.youmucloud.util.Statics;
 import kagg886.youmucloud.util.Utils;
+import kagg886.youmucloud.util.cache.JSONArrayStorage;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
+import java.util.Random;
 
 import static kagg886.youmucloud.handler.group.GroupMsgHandle.GROUP_MSG_HANDLES;
 import static kagg886.youmucloud.handler.memberevent.MemberMsgHandle.MEMBER_MSG_HANDLES;
@@ -26,13 +30,8 @@ public class HandlerMessage implements QQMsgListener {
 
     public static final HandlerMessage INSTANCE = new HandlerMessage();
 
-
-    private String[] fixChar = new String[]{"<", ">", "[", "]"};
-    private String[] fixChar1 = new String[]{"!", "。", "/"};
-
     static {
         GROUP_MSG_HANDLES.add(new CardListener());
-        GROUP_MSG_HANDLES.add(new AutoReply());
         GROUP_MSG_HANDLES.add(new Help());
         GROUP_MSG_HANDLES.add(new MC());
         GROUP_MSG_HANDLES.add(new MuseDash());
@@ -48,6 +47,10 @@ public class HandlerMessage implements QQMsgListener {
         //----------------------------------------//
         MEMBER_MSG_HANDLES.add(new Welcome());
     }
+
+    public static JSONArrayStorage cloudBlack = JSONArrayStorage.obtain("/CloudBlack.json");
+    private String[] fixChar = new String[]{"<", ">", "[", "]"};
+    private String[] fixChar1 = new String[]{"!", "。", "/"};
 
     @Override
     public void onFriendChange(FriendChangePack arg0) {
@@ -89,11 +92,18 @@ public class HandlerMessage implements QQMsgListener {
             pack.getGroup().sendMsg(MsgSpawner.newPlainText("抱歉，当前版本因为兼容性而暂停使用\n请下载最新版YoumuCloud,下载地址:\nhttp://" + Statics.ip + "/youmu/text?path=update"));
             return;
         }
+
+        //屏蔽列表检测
+        for (int i = 0; i < cloudBlack.length(); i++) {
+            if (cloudBlack.optLong(i) == pack.getGroup().getId()) {
+                return;
+            }
+        }
+
         boolean canFilter = true;
         boolean canReplacer = true;
         boolean canAutoFixer = true;
         for (GroupMsgHandle msgHandle : GROUP_MSG_HANDLES) {
-
             if (canFilter) { //指令过滤器，加一个bool保证只过滤一次
                 //444_fliter   11,112   11
                 for (String unit : msgHandle.getParam(pack, pack.getGroup().getId() + "_fliter", "none").split(",")) {
@@ -191,13 +201,35 @@ public class HandlerMessage implements QQMsgListener {
                 }
                 canAutoFixer = false;
             }
-
             try {
                 msgHandle.handle(pack);
             } catch (Throwable e) {
-                msgHandle.sendMsg(pack, "运行bot时出错!请复制以下错误信息然后加入官方群告知管理员!\n", Utils.PrintException(e));
+                StringBuilder name = new StringBuilder();
+                for (int i = 0; i < 16; i++) {
+                    name.append((char) (new Random().nextInt(25) + 97));
+                }
+                StringBuilder builder = new StringBuilder();
+                builder.append("------YoumuCrash------");
+                builder.append("\nDate:").append(Utils.format.format(System.currentTimeMillis()));
+                builder.append("\n---Bot---");
+                builder.append("\nBot:").append(pack.getGroup().getBotQQ());
+                builder.append("\nGroup:").append(pack.getGroup().getId());
+                builder.append("\nGroupMsgPack:").append(pack);
+                builder.append("\n---Net---");
+                builder.append("\nConnectHeader:").append(msgHandle.getParams(pack).toString());
+                builder.append("\n--------------------");
+                builder.append(Utils.PrintException(e));
+
+                File f = new File(Statics.data_dir + "/error/" + name + ".log");
+                try {
+                    f.createNewFile();
+                    Utils.writeStringToFile(f.getAbsolutePath(), builder.toString());
+                } catch (IOException ignored) {
+                }
+                msgHandle.sendMsg(pack, "运行bot时出错!\n请前往[http://" + Statics.ip + "/youmu/HomePage]获取官方群号或频道号，加入并提供Error ID进行反馈!", "ErrorID:" + name);
                 msgHandle.sendClientLog(pack, Utils.PrintException(e));
             }
+
         }
 //			}
 //		});

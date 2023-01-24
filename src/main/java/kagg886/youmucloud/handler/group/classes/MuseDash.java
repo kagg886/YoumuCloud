@@ -4,25 +4,40 @@ import kagg886.qinternet.Message.GroupMsgPack;
 import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
 import kagg886.youmucloud.handler.group.GroupMsgHandle;
-import kagg886.youmucloud.util.cache.JSONObjectStorage;
+import kagg886.youmucloud.util.Utils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 public class MuseDash extends GroupMsgHandle {
     private JSONObject source;
 
     public MuseDash() {
-        try {
-            source = JSONObjectStorage.obtain("res/MuseMusic.json").optJSONObject("fullAlbums");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//        try {
+//            source = JSONObjectStorage.obtain("res/MuseMusic.json").optJSONObject("fullAlbums");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+		Utils.service.execute(new Runnable() {
+			@Override
+			public void run() {
+				Connection c = Jsoup.connect("https://musedash.moe").ignoreContentType(true);
+				try {
+					source = new JSONObject(c.execute().body().split("__INITIAL_STATE__=")[1].split("</script>")[0]);
+					Utils.log("debug", "MuseDash曲库装载完成");
+				} catch (JSONException e) {
+					throw new RuntimeException(e);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+	}
 
 	@Override
 	public void handle(GroupMsgPack pack) {
