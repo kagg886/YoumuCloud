@@ -56,6 +56,22 @@ public class Spawn extends GroupMsgHandle {
 
         }
 
+        if (text.startsWith(".spawn wife")) {
+            ArrayList<String> links = Utils.getImage(pack);
+            if (links.size() == 0) {
+                sendMsg(pack, "请发送图片!");
+                return;
+            }
+            BufferedImage img = ImageIO.read(Jsoup.connect(links.get(0)).ignoreContentType(true).execute().bodyStream());
+            BufferedImage bg = ImageIO.read(new File(Statics.data_dir + "/res/spawn/wife.png"));
+            Graphics2D graphics2D = bg.createGraphics();
+            graphics2D.drawImage(img, 0, 115, 941, 702, null);
+            graphics2D.dispose();
+            MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), "要好好对老婆负责哦~");
+            col.putImage(ImageUtil.ImageToLink(bg, "wife"));
+            pack.getGroup().sendMsg(col);
+        }
+
         if (text.startsWith(".spawn confuse")) {
             ArrayList<String> links = Utils.getImage(pack);
             if (links.size() == 0) {

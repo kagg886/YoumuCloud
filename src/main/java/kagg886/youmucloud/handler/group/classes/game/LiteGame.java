@@ -10,6 +10,7 @@ import kagg886.youmucloud.util.Utils;
 import kagg886.youmucloud.util.WaitService;
 import kagg886.youmucloud.util.cache.JSONObjectStorage;
 import kagg886.youmucloud.util.plaidgame.ColorMap;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -38,10 +39,13 @@ public class LiteGame extends GroupMsgHandle {
     };
     private final JSONObject arcSongs; //id对应曲名
     private final JSONObject arcImages; //id对应图片链接
+
+    private final JSONObjectStorage spells; //符卡大全
     private BufferedImage red, blue, green; //红蓝绿碟
     private Thread wifeAutoSender; //老婆服务启动器
 
     public LiteGame() {
+        spells = JSONObjectStorage.obtain("/res/spell.json");
         try {
             red = ImageIO.read(new File(Statics.data_dir + "/res/ufo/red.png"));
             blue = ImageIO.read(new File(Statics.data_dir + "/res/ufo/blue.png"));
@@ -94,6 +98,85 @@ public class LiteGame extends GroupMsgHandle {
             }
         }
 
+        if (WaitService.hasKey(qq + "_spell")) {
+            int p;
+            try {
+                p = Integer.parseInt(text);
+            } catch (Exception e) {
+                sendMsg(pack, "请直接输入数字!");
+                return;
+            }
+            if (WaitService.addCall(qq + "_spell", String.valueOf(p))) {
+                sendMsg(pack, "选择成功,选项为:" + text, "\n等待游戏结算...");
+            } else {
+                sendMsg(pack, "选择失败!");
+            }
+        }
+
+        if (text.equals(".gm spell")) {
+            for (Runnable r : Utils.service.getQueue()) {
+                try {
+                    GameRunnable rb = (GameRunnable) r;
+                    if (rb.getOwner() == pack.getMember().getUin()) {
+                        sendMsg(pack, "你已在游戏中,请勿重复加入!");
+                        return;
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+            Utils.service.submit(new GameRunnable() {
+                @Override
+                public long getOwner() {
+                    return pack.getMember().getUin();
+                }
+
+                @Override
+                public void run() {
+                    while (true) {
+                        String work = spells.names().optString(Utils.random.nextInt(spells.names().length()));
+                        JSONObject charts = spells.optJSONObject(work);
+                        String chara = charts.names().optString(Utils.random.nextInt(charts.names().length()));
+                        JSONArray spell = charts.optJSONArray(chara);
+                        String spellUnit = spell.optString(Utils.random.nextInt(spell.length()));
+                        int right = Utils.random.nextInt(5);
+                        MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), "下列符卡属于:" + chara + "的是:");
+                        int i = 0;
+                        while (i < 5) {
+                            if (i == right) {
+                                col.putText(String.format("\n%d:%s", i, spellUnit));
+                                i++;
+                                continue;
+                            }
+                            String work0 = spells.names().optString(Utils.random.nextInt(spells.names().length()));
+                            JSONObject charts0 = spells.optJSONObject(work0);
+                            String chara0 = charts0.names().optString(Utils.random.nextInt(charts0.names().length()));
+                            if (chara0.equals(chara)) {
+                                continue;
+                            }
+                            JSONArray spell0 = charts0.optJSONArray(chara0);
+                            String spellUnit0 = spell0.optString(Utils.random.nextInt(spell0.length()));
+                            col.putText(String.format("\n%d:%s", i, spellUnit0));
+                            i++;
+                        }
+                        col.putText("\n发送符卡前代表的序号以进行选择。您有10s的时间选择");
+
+                        pack.getGroup().sendMsg(col);
+                        String str = WaitService.wait(qq + "_spell", 15);
+                        if (str == null) {
+                            sendMsg(pack, "超时自动取消");
+                            return;
+                        }
+                        if (Integer.parseInt(str) != right) {
+                            sendMsg(pack, "猜错惹!\n正确答案是:" + right + "\n来贴贴x");
+                            return;
+                        } else {
+                            sendMsg(pack, "猜对惹!骚等...");
+                        }
+                    }
+                }
+            });
+        }
+
         if (text.equals(".gm arc")) {
             for (Runnable r : Utils.service.getQueue()) {
                 try {
@@ -114,10 +197,9 @@ public class LiteGame extends GroupMsgHandle {
                 @Override
                 public void run() {
                     int round = 1;
-                    double rank = 1.0;
                     while (true) {
                         ArrayList<String> rollId = new ArrayList<>();
-                        for (int i = 0; i < 4; i++) {
+                        for (int i = 0; i < (round > 5 ? 5 : 4); i++) {
                             rollId.add(arcImages.names().optString(Utils.random.nextInt(arcImages.length())));
                         }
                         int right = Utils.random.nextInt(4);
@@ -160,7 +242,7 @@ public class LiteGame extends GroupMsgHandle {
                                     break;
                             }
                         }
-                        int len = (int) Math.floor(68.4750466 * Math.atan(9.0202910 / rank));
+                        int len = round >= 20 ? 6 : (int) (0.066 * Math.pow(round - 20, 2)) + 10;
                         sub = image.getSubimage(Utils.random.nextInt(256 - len), Utils.random.nextInt(256 - len), len, len);
                         MsgCollection col = MsgSpawner.newAtToast(pack.getMember().getUin(), "第", String.valueOf(round), "轮");
                         try {
@@ -169,16 +251,15 @@ public class LiteGame extends GroupMsgHandle {
                             sendMsg(pack, "保存游戏图片失败!\n原因:" + e.getMessage());
                             return;
                         }
-                        for (int i = 0; i < 4; i++) {
+                        for (int i = 0; i < (round > 5 ? 5 : 4); i++) {
                             col.putText(String.valueOf(i));
                             col.putText(":");
                             col.putText(arcSongs.optJSONObject(rollId.get(i)).optString("en"));
                             col.putText("\n");
                         }
                         col.putText("发送曲名代表的数字即可\n您有15s的时间选择");
-                        sendClientLog(pack, "构建消息成功");
                         pack.getGroup().sendMsg(col);
-                        String str = WaitService.wait(qq + "_arc", 15);
+                        String str = WaitService.wait(qq + "_arc", 25);
                         if (str == null) {
                             sendMsg(pack, "超时自动取消");
                             return;
@@ -197,7 +278,6 @@ public class LiteGame extends GroupMsgHandle {
                             }
                             sendMsg(pack, "回答正确!\n给予", String.valueOf(add), "积分!\n下一题生成中...");
                             round++;
-                            rank += Math.random();
                             continue;
                         }
                         col = MsgSpawner.newAtToast(qq, "猜错辣~\n", "正确答案是...");

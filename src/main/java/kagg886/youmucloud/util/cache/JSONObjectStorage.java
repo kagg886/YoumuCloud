@@ -33,25 +33,32 @@ public class JSONObjectStorage extends JSONObject {
 	}
 
 
-	public synchronized boolean save() {
-		try {
-			Utils.writeStringToFile(workdir, this.toString());
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
-	}
-	
-	
-	private static String getJSON(String relativeDir) throws IOException {
-		if (relativeDir.equals("")) {
-			return "{}";
-		}
-		String string = Utils.loadStringFromFile(relativeDir);
-		if (string.equals("")) {
-			return "{}";
-		}
+    private static String getJSON(String relativeDir) throws IOException {
+        if (relativeDir.equals("")) {
+            return "{}";
+        }
+        String string = Utils.loadStringFromFile(relativeDir);
+        if (string.equals("")) {
+            return "{}";
+        }
 		return string;
 	}
+
+    public synchronized boolean save() {
+        try {
+            saveUnsafe();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void saveUnsafe() throws IOException {
+        try {
+            Utils.writeStringToFile(workdir, this.toString());
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 
 }

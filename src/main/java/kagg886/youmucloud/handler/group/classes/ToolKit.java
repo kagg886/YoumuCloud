@@ -25,6 +25,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,11 +96,17 @@ public class ToolKit extends GroupMsgHandle {
                 return;
             }
 
-            JSONObject o = new JSONArray(Jsoup.connect("https://lab.magiconch.com/api/nbnhhsh/guess")
-                    .ignoreContentType(true)
-                    .data("text", vars[2])
-                    .method(Connection.Method.POST)
-                    .execute().body()).optJSONObject(0);
+            JSONObject o;
+            try {
+                o = new JSONArray(Jsoup.connect("https://lab.magiconch.com/api/nbnhhsh/guess")
+                        .ignoreContentType(true)
+                        .data("text", vars[2])
+                        .method(Connection.Method.POST)
+                        .execute().body()).optJSONObject(0);
+            } catch (SocketTimeoutException e) {
+                sendMsg(pack, "请求超时，请再试一次");
+                return;
+            }
 
             if (o == null || !o.has("trans")) {
                 sendMsg(pack, "找不到对应的关键词!");
@@ -314,14 +321,20 @@ public class ToolKit extends GroupMsgHandle {
                 return;
             }
             String lang = text.split(" ")[2].split("\n")[0];
-            Connection.Response r = Jsoup.connect("https://tool.runoob.com/compile2.php")
+            if (langheaders.isNull(lang)) {
+                sendMsg(pack, "语言输入错误!\n可选的语言有(不区分大小写):" + langheaders.names());
+                return;
+            }
+            String token = Jsoup.connect("https://c.runoob.com/compile/" + langheaders.getInt(lang)).get().toString();
+            Connection rs = Jsoup.connect("https://tool.runoob.com/compile2.php")
                     .ignoreContentType(true)
-                    .data("fileext", lang)
+                    .data("language", token.split("runcode = ")[1].split(";")[0])
                     .data("code", text.replace(vars[0], ""))
-                    .data("token", "4381fe197827ec87cbac9552f14ec62a")
+                    .data("token", token.split("token = '")[1].split("';")[0])
                     .data("stdin", "")
-                    .data("language", String.valueOf(langheaders.getInt(lang)))
-                    .method(Connection.Method.POST).execute();
+                    .data("fileext", token.split("fileext:\"")[1].split("\"},fu")[0])
+                    .method(Connection.Method.POST);
+            Connection.Response r = rs.execute();
             JSONObject rt;
             try {
                 rt = new JSONObject(r.body());

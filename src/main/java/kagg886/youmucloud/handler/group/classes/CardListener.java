@@ -128,6 +128,7 @@ public class CardListener extends GroupMsgHandle {
             }
             @Override
             public void onJson(String arg0) {
+
                 try {
                     JSONObject source = new JSONObject(arg0);
                     if (source.optString("desc").equals("哔哩哔哩")) {

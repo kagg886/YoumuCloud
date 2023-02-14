@@ -9,6 +9,7 @@ import kagg886.youmucloud.util.Utils;
 import kagg886.youmucloud.util.WaitService;
 
 import java.io.File;
+import java.io.IOException;
 
 public class Help extends GroupMsgHandle {
 
@@ -50,14 +51,19 @@ public class Help extends GroupMsgHandle {
         }
 
         if (text.equals(".help")) {
-            sendMsg(pack, "综合性工具类机器人,立志为使用者带来绝妙的体验\n查看指令请发送\".help\"\n" + "部署\n加入官群、官频等,请戳:http://" + Statics.ip + "/youmu/HomePage\n");
+            try {
+                sendMsg(pack, Utils.loadStringFromFile(Statics.data_dir + "broadcast.txt"), "\n------", "\n查看BOT指令请发送\".menu\"", "\n反馈bug，提出建议，请戳:[https://pd.qq.com/s/fkicymela]\n");
+            } catch (IOException e) {
+                sendMsg(pack, "---YoumuCloud---", "查看BOT指令请发送\".menu\"", "反馈bug，提出建议，请戳:[https://pd.qq.com/s/fkicymela]\n");
+            }
             return;
         }
 
         if (text.startsWith(".")) {
             for (String name : rootCommands) {
-                if (text.substring(1).startsWith(name)) {
+                if (name.startsWith(text.substring(1))) {
                     sendMsg(pack, "指令集已迁移,请打开下列网址查看:\nhttp://" + Statics.ip + "/youmu/text?path=c/" + text.substring(1));
+                    break;
                 }
             }
         }

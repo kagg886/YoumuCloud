@@ -59,12 +59,18 @@ public class Client {
 
         if (action.getAction().equals("onMember")) {
             GroupMemberPack object = new GroupMemberPack(action.optString("msg"));
+            if (QInternet.findBot(object.getMember().getUin()) != null) {
+                return;
+            }
             HandlerMessage.INSTANCE.onMemberMsg(object);
         }
 
         //收取群消息
         if (action.getAction().equals("onGroupMsg")) {
             GroupMsgPack object = new GroupMsgPack(action.optString("msg"));
+            if (QInternet.findBot(object.getMember().getUin()) != null) {
+                return;
+            }
             HandlerMessage.INSTANCE.onGroupMsg(object);
         }
 
@@ -110,6 +116,7 @@ public class Client {
     @OnError
     public void onError(Session session, Throwable throwable) {
         Utils.log("系统提示", "程序出错");
+        throwable.printStackTrace();
         if (throwable.getMessage() == null) {
             return;
         }

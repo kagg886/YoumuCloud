@@ -10,5 +10,10 @@
         <module name="YoumuServer" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="Test" target="1.8" />
+      <module name="Test.main" target="1.8" />
+      <module name="Test.test" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

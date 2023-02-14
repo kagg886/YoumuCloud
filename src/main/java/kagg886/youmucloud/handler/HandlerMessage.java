@@ -20,7 +20,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Random;
+import java.util.UUID;
 
 import static kagg886.youmucloud.handler.group.GroupMsgHandle.GROUP_MSG_HANDLES;
 import static kagg886.youmucloud.handler.memberevent.MemberMsgHandle.MEMBER_MSG_HANDLES;
@@ -34,7 +34,7 @@ public class HandlerMessage implements QQMsgListener {
         GROUP_MSG_HANDLES.add(new CardListener());
         GROUP_MSG_HANDLES.add(new Help());
         GROUP_MSG_HANDLES.add(new MC());
-        GROUP_MSG_HANDLES.add(new MuseDash());
+        GROUP_MSG_HANDLES.add(new MusicGame());
         GROUP_MSG_HANDLES.add(new ToolKit());
         GROUP_MSG_HANDLES.add(new Music());
         GROUP_MSG_HANDLES.add(new hso());
@@ -164,6 +164,10 @@ public class HandlerMessage implements QQMsgListener {
             }
             //指令纠正器
             if (canAutoFixer) {
+                if (pack.getMessage().getTexts().contains("\n")) { //有可能是.tk pgrun命令，这个时候不能纠正指令
+                    canAutoFixer = false;
+                    continue;
+                }
                 for (String fix : fixChar) {
                     if (pack.getMessage().getTexts().contains(fix)) {
                         final MsgCollection c = new MsgCollection();
@@ -204,12 +208,9 @@ public class HandlerMessage implements QQMsgListener {
             try {
                 msgHandle.handle(pack);
             } catch (Throwable e) {
-                StringBuilder name = new StringBuilder();
-                for (int i = 0; i < 16; i++) {
-                    name.append((char) (new Random().nextInt(25) + 97));
-                }
+                String name = UUID.randomUUID().toString().replace("-", "");
                 StringBuilder builder = new StringBuilder();
-                builder.append("------YoumuCrash------");
+                builder.append("\ns------YoumuCrash------");
                 builder.append("\nDate:").append(Utils.format.format(System.currentTimeMillis()));
                 builder.append("\n---Bot---");
                 builder.append("\nBot:").append(pack.getGroup().getBotQQ());

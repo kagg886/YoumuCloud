@@ -49,7 +49,8 @@ public class Mail {
         col.iterator(new MsgIterator() {
             @Override
             public void onText(String s) {
-                h5.append(col.getTexts().replace("\n", "<br>"));
+                h5.append(s.replace("\n", "<br>"));
+                h5.append("<br>");
             }
 
             @Override

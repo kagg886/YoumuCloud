@@ -5,11 +5,6 @@ import kagg886.qinternet.Message.MsgCollection;
 import kagg886.qinternet.Message.MsgSpawner;
 import kagg886.youmucloud.handler.group.GroupMsgHandle;
 import kagg886.youmucloud.util.ScoreUtil;
-import kagg886.youmucloud.util.Utils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
 import tax.cute.minecraftserverping.MCPing;
 import tax.cute.minecraftserverpingbe.MCBePing;
 
@@ -22,42 +17,6 @@ public class MC extends GroupMsgHandle {
     @Override
     public void handle(GroupMsgPack pack) throws Exception {
         String text = pack.getMessage().getTexts();
-
-        if (text.startsWith(".mc historyname")) {
-            String[] var = text.split(" ");
-            if (var.length == 2) {
-                sendMsg(pack, "格式识别失败!正确的格式为:.mc historyname [用户id]");
-                return;
-			}
-
-			if (ScoreUtil.checkCoin(this,pack,3)) {
-				return;
-			}
-
-			MsgCollection col= MsgSpawner.newPlainText("---PlayerHistory---\n");
-			Connection.Response conn = Jsoup.connect("https://api.mojang.com/users/profiles/minecraft/" + var[2]).ignoreContentType(true).execute();
-			if (conn.statusCode() == 204) {
-				col.putText("玩家不存在");
-				sendMsg(pack, col);
-				return;
-			}
-			String uuid = new JSONObject(conn.body()).optString("id");
-			col.putText("uuid:" + uuid + "\n");
-			conn = Jsoup.connect("https://api.mojang.com/user/profiles/" + uuid + "/names").ignoreContentType(true).execute();
-			JSONArray array =  new JSONArray(conn.body());
-			JSONObject unit;
-			for (int i = 0; i < array.length(); i++) {
-				unit = array.optJSONObject(i);
-				if (unit.isNull("changedToAt")) {
-					col.putText("初始用户名:" + unit.optString("name") + "\n");
-					continue;
-				}
-				col.putText(Utils.format.format(unit.optLong("changedToAt")) + "->" + unit.optString("name") + "\n");
-				
-			}
-			sendMsg(pack, col);
-			
-		}
 		
 		if (text.startsWith(".mc motd ")) {
 			String[] var = text.split(" ");
