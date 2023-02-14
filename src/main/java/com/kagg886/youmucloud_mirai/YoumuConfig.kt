@@ -6,5 +6,5 @@ import net.mamoe.mirai.console.data.value
 object YoumuConfig : AutoSavePluginConfig("Config") {
     val isDisableTheDataLog by value<Boolean>(false)
     val Header by value<String>("{}")
-    val ServerAddress by value<String>("ws://43.129.249.30:8082/youmu/api/");
+    val ServerAddress by value<String>("ws://youmucloud.kagg886.top/youmu/api/");
 }

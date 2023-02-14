@@ -66,7 +66,11 @@ public class MessageCenter {
 
     public static MsgCollection MIRAITOQI(MessageChain c) {
         MsgCollection p = new MsgCollection();
-        p.putText(c.contentToString());
+
+        c.stream().filter(PlainText.class::isInstance).forEach(singleMessage -> {
+            PlainText t = (PlainText) singleMessage;
+            p.putText(t.getContent());
+        });
 
         c.stream().filter(At.class::isInstance).forEach(t -> {
             At at = (At) t;

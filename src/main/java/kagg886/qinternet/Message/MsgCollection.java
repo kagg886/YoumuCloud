@@ -14,7 +14,7 @@ public class MsgCollection extends JSONArray implements Cloneable
 		fromReplyId->当此对象由转接器发送时，我们约定该值为此消息对应的id；
 		当此对象发送到转接器时，则约定该值为此消息将要回复的id
 	*/
-	public static enum MsgType {
+	public enum MsgType {
 		text,img,xml,json,ptt,at;
 	}
 	
@@ -50,7 +50,7 @@ public class MsgCollection extends JSONArray implements Cloneable
 	
 	public boolean containMsgType(MsgType type) {
         for (int i = 0; i < this.length(); i++) {
-            if (this.optJSONObject(i).optString("type").equals(type)) {
+            if (this.optJSONObject(i).optString("type").equals(type.toString())) {
             	return true;
             }
         }

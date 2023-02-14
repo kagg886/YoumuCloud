@@ -64,6 +64,7 @@ public class MsgHandler implements ListenerHost {
 
     @EventHandler
     public void onGroupMessage(GroupMessageEvent event) {
+
         SessionBot bot = ((SessionBot) QInternet.findBot(event.getBot().getId()));
         if (bot == null) {
             MessageCenter.sendLog(MessageCenter.Logger.Client, event.getBot().getId() + "准备连接...");
